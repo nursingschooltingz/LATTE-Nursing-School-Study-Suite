@@ -1,0 +1,2253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LATTE Study Suite</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg-deep: #08090f;
+  --bg-surface: #10121a;
+  --bg-card: #161924;
+  --bg-card-alt: #1c2030;
+  --bg-input: #0e1018;
+  --bg-hover: #222638;
+  --border: #1f2338;
+  --border-focus: #4a7ff7;
+  --accent: #4a7ff7;
+  --accent-glow: rgba(74,127,247,0.12);
+  --accent2: #a78bfa;
+  --accent-warm: #f0a83a;
+  --accent-green: #34d399;
+  --accent-red: #f87171;
+  --text: #cdd2e0;
+  --text-dim: #7b82a0;
+  --text-bright: #eaecf4;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --nav-width: 64px;
+  --sidebar-width: 320px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh;overflow:hidden;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::selection{background:var(--accent);color:#fff;}
+
+/* ─── Shell Layout ─── */
+.suite-shell{display:flex;height:100vh;overflow:hidden;}
+
+/* ─── Nav Rail ─── */
+.nav-rail{width:var(--nav-width);min-width:var(--nav-width);background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px;z-index:10;}
+.nav-logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:17px;color:#fff;margin-bottom:12px;flex-shrink:0;}
+.nav-btn{width:44px;height:44px;border-radius:10px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'DM Sans',sans-serif;font-size:8px;font-weight:600;letter-spacing:.3px;transition:all .15s;position:relative;}
+.nav-btn:hover{background:var(--bg-hover);color:var(--text);}
+.nav-btn.active{background:var(--accent-glow);color:var(--accent);}
+.nav-btn.active::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--accent);}
+.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nav-spacer{flex:1;}
+.nav-btn-cfg{margin-top:auto;margin-bottom:8px;}
+
+/* ─── Sidebar ─── */
+.config-sidebar{width:var(--sidebar-width);min-width:var(--sidebar-width);background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;max-height:100vh;}
+.sb-header{padding:18px 18px 14px;border-bottom:1px solid var(--border);}
+.sb-header h2{font-size:14px;font-weight:700;color:var(--text-bright);letter-spacing:-.2px;}
+.sb-header p{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.sb-section{padding:14px 18px;border-bottom:1px solid var(--border);}
+.sb-section:last-child{border-bottom:none;}
+.sb-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.4px;color:var(--text-dim);margin-bottom:8px;}
+.sb-field{margin-bottom:10px;}
+.sb-field:last-child{margin-bottom:0;}
+.sb-field label{display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;font-weight:500;}
+input[type="text"],input[type="password"],input[type="number"],select{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px;transition:border-color .2s;outline:none;}
+input:focus,select:focus{border-color:var(--border-focus);box-shadow:0 0 0 2px var(--accent-glow);}
+textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.55;resize:vertical;min-height:60px;outline:none;transition:border-color .2s;}
+textarea:focus{border-color:var(--border-focus);box-shadow:0 0 0 2px var(--accent-glow);}
+textarea::placeholder{color:#3a3f54;}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;}
+.toggle-row span{font-size:12px;font-weight:500;}
+.toggle-switch{width:38px;height:20px;background:var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background .25s;flex-shrink:0;}
+.toggle-switch.on{background:var(--accent);}
+.toggle-switch::after{content:'';position:absolute;width:14px;height:14px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .25s;}
+.toggle-switch.on::after{transform:translateX(18px);}
+
+/* Level picker */
+.level-pills{display:flex;gap:3px;}
+.level-pill{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:3px 9px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--text-dim);cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.level-pill:hover{border-color:var(--text-dim);color:var(--text);}
+.level-pill.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* Model info */
+.model-badge{margin-top:6px;padding:6px 8px;background:var(--bg-input);border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);display:flex;align-items:center;gap:5px;}
+.model-dot{width:5px;height:5px;border-radius:50%;background:var(--accent-green);flex-shrink:0;}
+.model-dot.pro{background:var(--accent-warm);}
+
+/* Hint */
+.sb-hint{font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:4px;}
+
+/* ─── Main Content Area ─── */
+.main-area{flex:1;overflow-y:auto;max-height:100vh;}
+
+/* ─── Shared UI components ─── */
+.btn-primary{padding:11px 20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;border:none;border-radius:var(--radius);cursor:pointer;transition:all .2s;letter-spacing:.2px;}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow);}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-secondary{padding:8px 14px;background:var(--bg-card);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;}
+.btn-secondary:hover:not(:disabled){border-color:var(--text-dim);background:var(--bg-hover);}
+.btn-danger{padding:8px 14px;background:rgba(248,113,113,.08);color:var(--accent-red);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;border:1px solid rgba(248,113,113,.2);border-radius:6px;cursor:pointer;transition:all .15s;}
+.btn-danger:hover:not(:disabled){background:rgba(248,113,113,.15);}
+
+/* Upload zone shared */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--bg-card);}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--accent-glow);}
+.upload-zone svg{width:36px;height:36px;margin-bottom:8px;color:var(--text-dim);}
+.upload-zone h3{font-size:14px;font-weight:600;margin-bottom:3px;color:var(--text);}
+.upload-zone p{font-size:11px;color:var(--text-dim);}
+
+/* File chips */
+.file-chip{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;font-size:12px;margin-bottom:5px;}
+.file-chip .f-icon{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;text-transform:uppercase;flex-shrink:0;}
+.f-icon.pdf{background:rgba(248,113,113,.12);color:#f87171;}
+.f-icon.pptx{background:rgba(249,115,22,.12);color:#fb923c;}
+.f-icon.txt{background:rgba(148,163,184,.12);color:#94a3b8;}
+.file-chip .f-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+.file-chip .f-size{font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+.file-chip .f-rm{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:0 2px;}
+.file-chip .f-rm:hover{color:var(--accent-red);}
+
+/* Progress */
+.progress-bar{height:5px;background:var(--bg-input);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s ease;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+
+/* Chunk list */
+.chunk-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg-card);border-radius:5px;font-size:11px;border:1px solid var(--border);margin-bottom:4px;}
+.chunk-dot{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;}
+.chunk-dot.pending{border:2px solid var(--border);}
+.chunk-dot.running{border:2px solid var(--accent);animation:pulse 1.2s infinite;}
+.chunk-dot.done{background:var(--accent-green);color:#0a0f1a;}
+.chunk-dot.error{background:var(--accent-red);color:white;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+/* Output container */
+.output-container{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.output-toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg-card-alt);flex-wrap:wrap;gap:6px;}
+.output-toolbar h3{font-size:13px;font-weight:600;color:var(--text-bright);}
+.output-toolbar-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.output-body{padding:20px;max-height:65vh;overflow-y:auto;line-height:1.7;font-size:13px;}
+.output-body h1,.output-body h2,.output-body h3,.output-body h4{color:var(--text-bright);margin:16px 0 8px;line-height:1.3;}
+.output-body h1{font-size:20px;font-family:'Playfair Display',serif;}
+.output-body h2{font-size:16px;border-bottom:1px solid var(--border);padding-bottom:5px;}
+.output-body h3{font-size:14px;color:var(--accent);}
+.output-body table{width:100%;border-collapse:collapse;margin:12px 0;font-size:11px;}
+.output-body th{background:var(--bg-card-alt);padding:7px 9px;text-align:left;font-weight:600;border:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.4px;}
+.output-body td{padding:7px 9px;border:1px solid var(--border);vertical-align:top;}
+.output-body tr:nth-child(even){background:rgba(255,255,255,.015);}
+.output-body ul,.output-body ol{padding-left:18px;margin:6px 0;}
+.output-body li{margin-bottom:3px;}
+.output-body code{font-family:'JetBrains Mono',monospace;background:var(--bg-input);padding:1px 4px;border-radius:3px;font-size:11px;}
+.output-body pre{background:var(--bg-input);padding:12px;border-radius:6px;overflow-x:auto;margin:10px 0;}
+.output-body pre code{background:none;padding:0;}
+.output-body strong{color:var(--text-bright);}
+.output-body blockquote{border-left:3px solid var(--accent);padding-left:12px;color:var(--text-dim);margin:10px 0;}
+
+/* Error */
+.error-banner{padding:10px 14px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:var(--radius);color:var(--accent-red);font-size:12px;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start;}
+
+/* Tip banner */
+.tip-banner{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;background:rgba(240,168,58,.06);border:1px solid rgba(240,168,58,.18);border-radius:var(--radius);font-size:11px;color:var(--accent-warm);margin-bottom:16px;line-height:1.5;}
+
+/* ─── Tool-specific panels (each tool wraps in .tool-panel) ─── */
+.tool-panel{padding:24px 32px;min-height:100vh;}
+.tool-panel h2.tool-title{font-size:18px;font-weight:700;color:var(--text-bright);margin-bottom:4px;letter-spacing:-.3px;}
+.tool-panel .tool-desc{font-size:12px;color:var(--text-dim);margin-bottom:20px;}
+.field-block{margin-bottom:16px;}
+.field-block label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text);}
+.field-block .badge-req{font-size:9px;font-weight:600;color:var(--accent-warm);text-transform:uppercase;letter-spacing:.8px;background:rgba(240,168,58,.1);padding:2px 7px;border-radius:3px;}
+.field-block .badge-opt{font-size:9px;font-weight:400;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;background:var(--bg-card-alt);padding:2px 7px;border-radius:3px;}
+
+/* Extraction toggle */
+.ext-toggle{display:flex;align-items:center;gap:7px;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;margin-bottom:14px;user-select:none;}
+.ext-toggle:hover{border-color:var(--text-dim);}
+.ext-toggle .arrow{transition:transform .2s;font-size:9px;}
+.ext-toggle .arrow.open{transform:rotate(90deg);}
+.ext-viewer{background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:16px;max-height:250px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.5;white-space:pre-wrap;color:var(--text-dim);}
+.retry-banner{padding:10px 14px;background:rgba(74,127,247,.06);border:1px solid rgba(74,127,247,.18);border-radius:var(--radius);font-size:12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+
+/* Format options */
+.format-opt{padding:8px 10px;border-radius:6px;cursor:pointer;transition:all .15s;margin-bottom:4px;}
+.format-opt .fo-head{display:flex;align-items:center;gap:6px;}
+.format-opt .fo-desc{font-size:9px;color:var(--text-dim);margin-top:3px;padding-left:20px;line-height:1.3;}
+
+/* ─── NCLEX-specific ─── */
+.nclex-card{border:1px solid var(--border);border-radius:10px;background:var(--bg-card);margin-bottom:12px;overflow:hidden;transition:box-shadow .2s;}
+.nclex-card.open{box-shadow:0 0 0 1px var(--accent-glow),0 4px 16px rgba(0,0,0,.25);}
+.nclex-header{width:100%;padding:10px 14px;background:none;border:none;cursor:pointer;display:flex;align-items:flex-start;gap:8px;text-align:left;}
+.nclex-qnum{background:rgba(74,127,247,.1);color:var(--accent);font-weight:700;font-size:10px;padding:2px 7px;border-radius:5px;flex-shrink:0;margin-top:2px;}
+.nclex-body{padding:0 14px 14px;}
+
+/* ─── Anki table view ─── */
+.anki-tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);}
+.anki-tbl-wrap table{width:100%;border-collapse:collapse;}
+.anki-tbl-wrap thead{background:var(--bg-card-alt);}
+.anki-tbl-wrap th{padding:8px 10px;font-size:9.5px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.6px;text-align:left;border-bottom:1px solid var(--border);}
+.anki-tbl-wrap td{padding:5px 8px;border-bottom:1px solid var(--border);vertical-align:top;}
+.anki-tbl-wrap tr:last-child td{border-bottom:none;}
+.anki-tbl-wrap tr.dim{opacity:.35;}
+.cell-ta{width:100%;background:var(--bg-input);border:1px solid transparent;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:5px 7px;border-radius:5px;resize:none;outline:none;line-height:1.5;transition:border .2s;}
+.cell-ta:focus{border-color:var(--border-focus);}
+.cell-ta.tags-ta{color:var(--accent);font-size:10px;}
+
+/* Tier badges */
+.tier-badge{display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;letter-spacing:.2px;line-height:1;white-space:nowrap;flex-shrink:0;}
+.tier-badge.t1{background:rgba(248,113,113,.12);color:#fca5a5;border:1px solid rgba(248,113,113,.2);}
+.tier-badge.t2{background:rgba(240,168,58,.1);color:#fde68a;border:1px solid rgba(240,168,58,.2);}
+.tier-badge.t3{background:rgba(74,127,247,.1);color:#93c5fd;border:1px solid rgba(74,127,247,.2);}
+.tier-btn{display:inline-flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);cursor:pointer;transition:.15s;}
+.tier-btn b{font-weight:700;}
+.tier-btn:hover{border-color:var(--text-dim);color:var(--text);}
+.tier-btn.t1.active{background:rgba(248,113,113,.1);color:#fca5a5;border-color:rgba(248,113,113,.25);}
+.tier-btn.t2.active{background:rgba(240,168,58,.08);color:#fde68a;border-color:rgba(240,168,58,.2);}
+.tier-btn.t3.active{background:var(--bg-hover);color:var(--text);border-color:var(--text-dim);}
+
+/* Deck Merger stat box */
+.stat-box{background:var(--bg-card-alt);border-radius:6px;padding:10px 14px;text-align:center;}
+.stat-box .stat-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;}
+.stat-box .stat-lbl{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+
+/* Priority Analyzer tier sections */
+.tier-section{border-radius:var(--radius-lg);padding:18px 20px;border:1px solid;margin-bottom:14px;}
+.tier-section.t1{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.25);}
+.tier-section.t2{background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.2);}
+.tier-section.t3{background:rgba(96,165,250,.05);border-color:rgba(96,165,250,.18);}
+.tier-section .tier-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.tier-section .tier-title{font-size:13px;font-weight:600;}
+.tier-section.t1 .tier-title{color:#fca5a5;}
+.tier-section.t2 .tier-title{color:#fde68a;}
+.tier-section.t3 .tier-title{color:#93c5fd;}
+.tier-section .tier-body{font-size:13px;line-height:1.7;color:var(--text);}
+.tier-section .tier-body h1,.tier-section .tier-body h2,.tier-section .tier-body h3,.tier-section .tier-body h4{color:var(--text-bright);margin:12px 0 5px;}
+.tier-section .tier-body ul,.tier-section .tier-body ol{padding-left:18px;margin:6px 0;}
+.tier-section .tier-body li{margin-bottom:4px;}
+.tier-section .tier-body strong{color:var(--text-bright);}
+.tier-section .tier-body table{width:100%;border-collapse:collapse;margin:10px 0;font-size:11px;}
+.tier-section .tier-body th,.tier-section .tier-body td{padding:6px 8px;border:1px solid var(--border);text-align:left;}
+.tier-section .tier-body th{background:rgba(0,0,0,.2);color:var(--text-bright);font-weight:600;}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp .2s ease;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;}
+
+/* Responsive */
+@media(max-width:900px){
+  .suite-shell{flex-direction:column;}
+  .nav-rail{width:100%;min-width:auto;flex-direction:row;max-height:56px;padding:8px 12px;overflow-x:auto;}
+  .nav-logo{margin-bottom:0;margin-right:10px;}
+  .nav-spacer{display:none;}
+  .config-sidebar{width:100%;min-width:auto;max-height:none;position:static;}
+  .main-area{max-height:none;}
+  .tool-panel{padding:16px 14px;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef,useCallback,useEffect,useMemo,createContext,useContext}=React;
+
+/* ═══════════════════════════════════════════════════════
+   SHARED CONFIG CONTEXT
+   ═══════════════════════════════════════════════════════ */
+const ConfigCtx=createContext();
+function useConfig(){return useContext(ConfigCtx);}
+
+/* ═══════════════════════════════════════════════════════
+   SHARED UTILITIES
+   ═══════════════════════════════════════════════════════ */
+function formatSize(b){return b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB';}
+function getExt(name){return name.split('.').pop().toLowerCase();}
+function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
+function getMimeType(file){const n=file.name.toLowerCase();if(n.endsWith('.pdf'))return'application/pdf';if(n.endsWith('.pptx'))return'application/vnd.openxmlformats-officedocument.presentationml.presentation';if(n.endsWith('.ppt'))return'application/vnd.ms-powerpoint';return file.type||'application/octet-stream';}
+
+// ═══════════════════════════════════════════
+// Google File API — handles files > 20MB
+// Uses resumable upload protocol, polls for processing, auto-cleanup
+// ═══════════════════════════════════════════
+const FILE_API_THRESHOLD = 15 * 1024 * 1024; // 15MB — use File API above this
+const _uploadedFileRefs = []; // track for cleanup
+
+async function uploadToFileAPI(apiKey, file) {
+  const mime = getMimeType(file);
+  // Step 1: Initiate resumable upload
+  const startRes = await fetch(
+    `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: {
+        'X-Goog-Upload-Protocol': 'resumable',
+        'X-Goog-Upload-Command': 'start',
+        'X-Goog-Upload-Header-Content-Length': file.size.toString(),
+        'X-Goog-Upload-Header-Content-Type': mime,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ file: { displayName: file.name } }),
+    }
+  );
+  if (!startRes.ok) {
+    const err = await startRes.json().catch(() => ({}));
+    throw new Error('File API upload start failed: ' + (err.error?.message || startRes.status));
+  }
+  const uploadUrl = startRes.headers.get('X-Goog-Upload-URL');
+  if (!uploadUrl) throw new Error('File API did not return upload URL');
+
+  // Step 2: Upload the actual bytes
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'X-Goog-Upload-Offset': '0',
+      'X-Goog-Upload-Command': 'upload, finalize',
+    },
+    body: file,
+  });
+  if (!uploadRes.ok) throw new Error('File API upload failed: ' + uploadRes.status);
+  const fileInfo = await uploadRes.json();
+
+  // Step 3: Poll until processing is complete
+  let fileState = fileInfo.file;
+  let polls = 0;
+  const maxPolls = 60; // up to 2 minutes
+  while (fileState.state === 'PROCESSING' && polls < maxPolls) {
+    await new Promise(r => setTimeout(r, 2000));
+    const checkRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/${fileState.name}?key=${apiKey}`
+    );
+    if (checkRes.ok) {
+      fileState = await checkRes.json();
+    }
+    polls++;
+  }
+  if (fileState.state === 'PROCESSING') throw new Error('File API: file still processing after timeout');
+  if (fileState.state === 'FAILED') throw new Error('File API: file processing failed');
+
+  // Track for cleanup
+  _uploadedFileRefs.push({ name: fileState.name, apiKey });
+
+  return { uri: fileState.uri, name: fileState.name, mimeType: mime };
+}
+
+// Prepare a file part for Gemini — auto-selects inline_data vs File API based on size
+async function prepareFilePart(apiKey, file, onStatus) {
+  if (file.size > FILE_API_THRESHOLD) {
+    // Large file → use File API
+    if (onStatus) onStatus(`Uploading "${file.name}" via File API (${formatSize(file.size)})...`);
+    const uploaded = await uploadToFileAPI(apiKey, file);
+    if (onStatus) onStatus(`"${file.name}" uploaded and ready.`);
+    return { file_data: { file_uri: uploaded.uri, mime_type: uploaded.mimeType } };
+  } else {
+    // Small file → inline base64 (faster, no upload step)
+    const base64 = await fileToBase64(file);
+    const mime = getMimeType(file);
+    return { inline_data: { mime_type: mime, data: base64 } };
+  }
+}
+
+// Cleanup: delete uploaded files from Google's temporary storage
+async function cleanupUploadedFiles() {
+  for (const ref of _uploadedFileRefs) {
+    try {
+      await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/${ref.name}?key=${ref.apiKey}`,
+        { method: 'DELETE' }
+      );
+    } catch (e) { /* ignore cleanup errors */ }
+  }
+  _uploadedFileRefs.length = 0;
+}
+
+async function callGemini(apiKey,model,parts,useThinking,thinkingLevel,signal,retries=2){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const body={contents:[{parts}],generationConfig:{maxOutputTokens:65536}};
+  if(useThinking)body.generationConfig.thinkingConfig={thinkingLevel};
+  for(let attempt=0;attempt<=retries;attempt++){
+    try{
+      const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal});
+      if(!resp.ok){const err=await resp.json().catch(()=>({}));const msg=err.error?.message||`API error ${resp.status}`;if((resp.status===429||resp.status>=500)&&attempt<retries){await new Promise(r=>setTimeout(r,Math.pow(2,attempt+1)*1000+Math.random()*1000));continue;}throw new Error(msg);}
+      const data=await resp.json();
+      if(data.candidates?.[0]?.finishReason==='SAFETY')throw new Error('Response blocked by safety filters.');
+      let text='';if(data.candidates?.[0]?.content?.parts){for(const part of data.candidates[0].content.parts){if(part.text&&!part.thought)text+=part.text;}}
+      if(!text.trim()){if(attempt<retries){await new Promise(r=>setTimeout(r,2000));continue;}throw new Error('Empty response from API.');}
+      return text;
+    }catch(err){if(err.name==='AbortError')throw err;if(attempt===retries)throw err;await new Promise(r=>setTimeout(r,Math.pow(2,attempt+1)*1000));}
+  }
+}
+
+// JSON-returning variant
+async function callGeminiJSON(apiKey,model,prompt,thinkingLevel,retries=2){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const gc={temperature:0.2,maxOutputTokens:65536};
+  if(thinkingLevel)gc.thinkingConfig={thinkingLevel};
+  for(let attempt=0;attempt<=retries;attempt++){
+    try{
+      const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:gc})});
+      if(!res.ok){const e=await res.json().catch(()=>({}));if((res.status===429||res.status>=500)&&attempt<retries){await new Promise(r=>setTimeout(r,Math.pow(2,attempt+1)*1000));continue;}throw new Error(e.error?.message||'API '+res.status);}
+      const d=await res.json();const raw=d.candidates?.[0]?.content?.parts?.filter(p=>p.text&&!p.thought).map(p=>p.text).join('\n')||'';return raw;
+    }catch(err){if(attempt===retries)throw err;await new Promise(r=>setTimeout(r,Math.pow(2,attempt+1)*1000));}
+  }
+}
+
+function extractJSON(text){
+  const fm=text.match(/```(?:json)?\s*([\s\S]*?)```/);if(fm)try{return JSON.parse(fm[1].trim());}catch(e){}
+  const bs=text.indexOf('{'),bk=text.indexOf('[');const start=Math.min(bs>=0?bs:Infinity,bk>=0?bk:Infinity);
+  if(start===Infinity)throw new Error('No JSON found.');
+  const opener=text[start],closer=opener==='{'?'}':']';let depth=0;
+  for(let i=start;i<text.length;i++){if(text[i]===opener)depth++;if(text[i]===closer)depth--;if(depth===0){try{return JSON.parse(text.substring(start,i+1));}catch(e){throw new Error('Malformed JSON.');}}}
+  throw new Error('JSON truncated.');
+}
+
+// PDF text extraction (shared)
+async function extractPdfText(file){
+  const ab=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:ab}).promise;let out='';
+  for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i);const tc=await pg.getTextContent();out+='\n--- PAGE '+i+' ---\n'+tc.items.map(x=>x.str).join(' ');}
+  return out;
+}
+
+async function extractPdfTextSpaced(file){
+  const ab=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:ab}).promise;let text='';
+  for(let i=1;i<=pdf.numPages;i++){
+    const p=await pdf.getPage(i);const c=await p.getTextContent();
+    const items=c.items;let result='';let lastX=-1,lastWidth=0,lastY=-1;
+    for(const item of items){if(!item.str)continue;const x=item.transform?.[4]??0,y=item.transform?.[5]??0,fontSize=item.transform?.[0]??12;
+      if(lastY!==-1&&Math.abs(y-lastY)>fontSize*0.5){result+='\n';lastX=-1;}
+      if(lastX!==-1){const gap=x-(lastX+lastWidth);if(gap>fontSize*0.25)result+=' ';else if(gap<-fontSize*2)result+='\n';}
+      result+=item.str;lastX=x;lastWidth=item.width??(item.str.length*fontSize*0.5);lastY=y;}
+    text+=result+'\n\n';
+  }
+  return text;
+}
+
+async function getPdfPageCount(file){const ab=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:ab}).promise;return pdf.numPages;}
+
+// Markdown to plain text
+function markdownToPlainText(md){
+  return md.replace(/^#{1,6}\s+/gm,'').replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1').replace(/`(.+?)`/g,'$1').replace(/```[\s\S]*?```/g,'').replace(/^\|.*\|$/gm,line=>{if(/^[\|\s:-]+$/.test(line))return'';return line.replace(/^\||\|$/g,'').split('|').map(c=>c.trim()).join('\t');}).replace(/^[-*+]\s+/gm,'\u2022 ').replace(/^>\s+/gm,'  ').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/---+/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+// Shared export helpers
+function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
+function exportAsMd(content,filename){downloadBlob(new Blob([content],{type:'text/markdown'}),filename);}
+function exportAsTxt(content,filename){downloadBlob(new Blob([markdownToPlainText(content)],{type:'text/plain'}),filename);}
+function exportAsPdf(mdContent,title,subtitle){
+  const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const htmlContent=marked.parse(mdContent);
+  const styledHTML=`<div id="pdf-target" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1a1a2e;line-height:1.6;padding:0;">
+    <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:white;padding:36px 32px 28px;margin:-10px -10px 0;border-radius:0;">
+      <div style="font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;">${title||'Study Guide'}</div>
+      <div style="font-size:14px;opacity:0.85;margin-bottom:12px;">${subtitle||''}</div>
+      <div style="font-size:10px;opacity:0.6;">Generated ${today}</div>
+    </div>
+    <div style="padding:20px 32px;">
+      <style>
+        #pdf-target h1{font-size:20px;font-weight:800;color:#1a1a2e;margin:28px 0 10px;padding-bottom:5px;border-bottom:3px solid #0f3460;}
+        #pdf-target h2{font-size:16px;font-weight:700;color:#0f3460;margin:24px 0 8px;padding:7px 10px;background:#f0f4ff;border-left:4px solid #0f3460;border-radius:0 4px 4px 0;}
+        #pdf-target h3{font-size:13px;font-weight:700;color:#e94560;margin:16px 0 6px;}
+        #pdf-target h4{font-size:12px;font-weight:600;color:#16213e;margin:12px 0 5px;}
+        #pdf-target p{font-size:11px;margin:5px 0;}
+        #pdf-target ul,#pdf-target ol{font-size:11px;padding-left:16px;margin:5px 0;}
+        #pdf-target li{margin-bottom:2px;}
+        #pdf-target strong{color:#0f3460;}
+        #pdf-target table{width:100%;border-collapse:collapse;margin:10px 0;font-size:10px;page-break-inside:avoid;}
+        #pdf-target th{background:#1a1a2e;color:white;padding:6px 8px;text-align:left;font-weight:600;font-size:9px;text-transform:uppercase;}
+        #pdf-target td{padding:5px 8px;border:1px solid #dde;vertical-align:top;}
+        #pdf-target tr:nth-child(even){background:#f8f9ff;}
+        #pdf-target blockquote{border-left:3px solid #e94560;padding:8px 12px;margin:10px 0;background:#fff5f5;border-radius:0 5px 5px 0;font-size:11px;}
+        #pdf-target code{font-family:'Courier New',monospace;background:#f0f0f5;padding:1px 3px;border-radius:2px;font-size:10px;}
+        #pdf-target pre{background:#f0f0f5;padding:10px;border-radius:5px;overflow-x:auto;font-size:10px;}
+        #pdf-target hr{border:none;border-top:2px solid #eee;margin:16px 0;}
+      </style>
+      ${htmlContent}
+    </div>
+    <div style="margin-top:32px;padding:12px 32px;background:#f8f9ff;border-top:1px solid #dde;font-size:9px;color:#666;text-align:center;">
+      ${title||'Study Guide'} \u2022 ${subtitle||''} \u2022 ${today}
+    </div>
+  </div>`;
+  const container=document.createElement('div');container.innerHTML=styledHTML;container.style.cssText='position:absolute;left:-9999px;width:780px;';document.body.appendChild(container);
+  const target=container.querySelector('#pdf-target');
+  html2pdf().set({margin:[0.3,0.3,0.4,0.3],filename:`${(title||'export').replace(/[^a-zA-Z0-9]/g,'-')}.pdf`,image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'in',format:'letter',orientation:'portrait'},pagebreak:{mode:['avoid-all','css','legacy']}}).from(target).save().then(()=>document.body.removeChild(container)).catch(()=>document.body.removeChild(container));
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAV ICONS (SVG)
+   ═══════════════════════════════════════════════════════ */
+const NavIcons={
+  guide:()=><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+  pyramid:()=><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg>,
+  cards:()=><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>,
+  merge:()=><svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>,
+  nclex:()=><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+  gear:()=><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+};
+
+const TOOLS=[
+  {id:'guide',label:'Guide',icon:NavIcons.guide,title:'LATTE Study Guide Generator',desc:'Upload lecture files → comprehensive LATTE study guide'},
+  {id:'priority',label:'Priority',icon:NavIcons.pyramid,title:'Pyramid Priority Analyzer',desc:'Triage study content into Tier 1/2/3 priorities'},
+  {id:'anki',label:'Anki',icon:NavIcons.cards,title:'LATTE Anki Generator',desc:'PDF → Anki cloze cards with LATTE tagging + tiers'},
+  {id:'merger',label:'Merge',icon:NavIcons.merge,title:'Anki Deck Merger',desc:'Combine & deduplicate two Anki deck exports'},
+  {id:'nclex',label:'NCLEX',icon:NavIcons.nclex,title:'NCLEX Question Extractor',desc:'Extract practice questions from review PDFs'},
+];
+
+/* ═══════════════════════════════════════════════════════
+   PLACEHOLDER: Each tool goes here (large code blocks)
+   Will be added via str_replace in subsequent steps
+   ═══════════════════════════════════════════════════════ */
+
+// ──── TOOL: Study Guide Generator ────
+const SG_MASTER_PROMPT=`I'm uploading files from my {COURSE} nursing coursework for {EXAM}:\n\u2022 PowerPoint lectures covering the high-priority topics\n\u2022 PDF(s) of the related textbook chapter(s) with deeper clinical detail\n\nCreate a comprehensive, exam-ready study guide using ONLY the attached files as source material. The guide must be driven by the Outcomes and Points listed below, organized using the LATTE clinical framework, and built to the depth and specificity standards described in the instructions that follow.\n\n\u2550\u2550\u2550 OUTCOMES (What I Need to Be Able to Do) \u2550\u2550\u2550\n{OUTCOMES}\n\n\u2550\u2550\u2550 POINTS (Specific Content I Must Know) \u2550\u2550\u2550\n{POINTS}\n\nSTEP 0: EXTRACTION PASS (MANDATORY)\nProduce an Extraction Log: 0A) Condition/Entity Master List. 0B) Numerical & Parameter Harvest table (Condition/Topic | Item Type | Exact Value | What it Applies To | Source Pointer). 0C) Med List Harvest table. 0D) Test/Tool Harvest table. After Step 0 is complete, THEN write the final guide.\n\nSTEP 1: EXTRACT & SYNTHESIZE\nCRITICAL COVERAGE RULES (NON-NEGOTIABLE):\n\u2022 Every Point MUST appear. Cross-check after drafting.\n\u2022 Textbook-only conditions must be included as LATTE sections.\n\u2022 NO COMBINED CONDITIONS \u2014 split grouped conditions into separate LATTE sections.\n\u2022 CITE-OR-TAG RULE: numerical values must have a Source Pointer citing the ACTUAL FILENAME.\n\u2022 Exhaustive Numerical Extraction: exact values, not summaries.\n\u2022 Conceptual Conditions get their own LATTE sections.\n\nSTEP 2: ORGANIZE USING THE LATTE METHOD\nOne LATTE section per condition:\nL \u2014 Brief Patho: Mechanism-focused pathophysiology.\nL \u2014 Look (Signs & Symptoms): EARLY signs, LATE/EMERGENCY signs. Label CLASSIC/HALLMARK.\nA \u2014 Assess: Tools, frequencies, pre-med assessments, rapid response triggers.\nT \u2014 Tests: Diagnostics, labs, imaging. GOLD STANDARD if sourced. Nursing implications.\nT \u2014 Treatments: Split into Independent Nursing Actions and Dependent Medical Orders with exact parameters.\nE \u2014 Educate: Acute care + discharge teaching with timeframes, red flags, restrictions.\n\nSTEP 3: EXAM-READINESS LAYERS\nAfter each LATTE section: \u26A0 NCLEX TIP, \uD83D\uDCA1 CLINICAL PEARL, \u26A0 ALERT.\n\nSTEP 4: SUPPLEMENTAL REFERENCE SECTIONS (A\u2013J)\nA) Pharmacology Table B) Diagnostic Tests Table C) Scoring Tools D) Key Formulas E) Condition-Level Tables F) DO vs DO NOT Table G) Complications Prevention Table H) Outcome Mapping Table I) Points Verification Table J) Contradictions & Watch-Outs Summary\n\nSTEP 5: FORMAT AS STUDY GUIDE\n\u2022 One LATTE section per condition, clear headings.\n\u2022 Short, information-dense bullet points.\n\u2022 Bold drug names, hallmark signs, condition names, critical values.\n\u2022 Specific numerical values. If not found, mark [UNVERIFIED].\n\u2022 RN-level clinical language. Actual formatted tables.\n\nCOMPLETENESS SELF-AUDIT: Separate LATTE per condition? Every Outcome/Point? Textbook-only included? Pharm table complete? Contradictions flagged? All supplemental tables?`;
+
+const SG_EXTRACTION_PROMPT=`You are performing STEP 0 (Extraction Pass) of a nursing study guide build.
+Analyze the attached file EXHAUSTIVELY. This extraction will be merged with others to build a LATTE study guide.
+
+SOURCE CITATION RULE (CRITICAL): The filename of this file is provided above. In EVERY "Source" column of every table below, you MUST use the EXACT filename (e.g., "Chapter12-Neuro.pdf, p. 342" or "MedSurg-Lecture5.pptx, slide 14"). NEVER use generic labels like "File 1", "Source 1", "PPT", "PDF", or "the textbook". Always cite the actual filename + page/slide number.
+
+0A) CONDITION/ENTITY MASTER LIST \u2014 every condition, entity, syndrome, concept.
+0B) NUMERICAL & PARAMETER HARVEST \u2014 table: Condition/Topic | Item Type | Exact Value | What it Applies To | Source (filename + page/slide#). Extract ALL numbers.
+0C) MEDICATION HARVEST \u2014 table: Drug (Brand) | Class | Mechanism | Key Nursing Considerations | Source (filename + page/slide#). ALL meds.
+0D) DIAGNOSTICS/TOOLS HARVEST \u2014 table: Test/Tool | Purpose | Nursing Implications | Source (filename + page/slide#).
+0E) KEY CLINICAL CONTENT \u2014 pathophys, interventions, education, NCLEX content, pearls, contraindications. Keep exact values. Cite the filename when referencing specific facts.
+0F) SIGNS & SYMPTOMS BY CONDITION \u2014 EARLY, LATE/EMERGENCY, CLASSIC/HALLMARK for each.
+0G) TREATMENTS & INTERVENTIONS \u2014 Independent Nursing Actions + Dependent Medical Orders per condition with exact parameters.
+
+Be specific. Use exact values. Do not summarize away details. Always cite the actual filename, never generic labels.`;
+
+const SG_OVERLAP_CONTEXT=`
+CONTEXT FROM PREVIOUS FILE EXTRACTIONS:
+The following conditions, medications, and concepts have already been extracted from previously processed files. If the current file contains overlapping or related content, ensure your extraction captures any ADDITIONAL details, differing values, or supplementary information not already covered. Also flag any contradictions with previously extracted data.
+
+Previously extracted conditions: {CONDITIONS}
+Previously extracted medications: {MEDS}
+Key values already captured: {VALUES}
+
+Now extract from the current file with this context in mind:
+`;
+
+const SG_SYNTHESIS_PROMPT=`You have exhaustive extracted data from multiple nursing course files. Using ALL extracted content as source material, produce the complete study guide.
+
+\u2550\u2550 EXTRACTED DATA FROM ALL SOURCE FILES \u2550\u2550
+{EXTRACTIONS}
+
+\u2550\u2550 FULL STUDY GUIDE INSTRUCTIONS \u2550\u2550
+{MASTER_PROMPT}
+
+CRITICAL SYNTHESIS REMINDERS:
+1. The extracted data IS your source material. Use it exhaustively.
+2. Every condition from every extraction gets its own LATTE section.
+3. MERGE data when multiple files cover the same condition.
+4. Keep all exact values, source pointers, specifics.
+5. SOURCE POINTER RULE: When citing sources, use the ACTUAL FILENAME from the extraction headers (e.g., "Chapter12-Neuro.pdf, p. 342"). NEVER use generic labels like "File 1", "Source 1", "the textbook", or "the PPT". Each extraction is labeled with its real filename \u2014 use those exact names.
+6. If a value is in extractions, use it. Otherwise mark [UNVERIFIED].
+7. Build ALL supplemental tables A\u2013J.
+8. Complete the self-audit before finalizing.
+
+Produce the complete study guide now.`;
+
+function sgBuildOverlap(prevExtractions){
+  if(!prevExtractions.length)return'';const allText=prevExtractions.map(e=>e.data).join('\n');
+  const condLines=allText.match(/^[-\u2022*]\s+.{3,80}$/gm)||[];const conditions=[...new Set(condLines.slice(0,40).map(l=>l.replace(/^[-\u2022*]\s+/,'').trim()))].join(', ');
+  const medMatches=allText.match(/\b[A-Z][a-z]+(?:ol|in|ine|ide|ate|one|pam|lam|ril|tan|pin|mab|nib|cin|tin)\b/g)||[];const meds=[...new Set(medMatches)].slice(0,30).join(', ');
+  const valueMatches=allText.match(/\d+[\.\d]*\s*(?:mg|mcg|mEq|mm\s*Hg|bpm|mL|%|units|hours?|minutes?|days?|mmol|mg\/dL|mEq\/L)/gi)||[];const values=[...new Set(valueMatches)].slice(0,25).join('; ');
+  return SG_OVERLAP_CONTEXT.replace('{CONDITIONS}',conditions||'None yet').replace('{MEDS}',meds||'None yet').replace('{VALUES}',values||'None yet');
+}
+
+function StudyGuideGenerator(){
+  const cfg=useConfig();
+  const [files,setFiles]=useState([]);
+  const [courseName,setCourseName]=useState('');
+  const [examName,setExamName]=useState('');
+  const [outcomes,setOutcomes]=useState('');
+  const [points,setPoints]=useState('');
+  const [overlapEnabled,setOverlapEnabled]=useState(true);
+  const [exportFormat,setExportFormat]=useState('markdown');
+  const [step,setStep]=useState('upload');
+  const [chunks,setChunks]=useState([]);
+  const [progress,setProgress]=useState(0);
+  const [output,setOutput]=useState('');
+  const [extractionData,setExtractionData]=useState('');
+  const [showExtractions,setShowExtractions]=useState(false);
+  const [error,setError]=useState('');
+  const [isStreaming,setIsStreaming]=useState(false);
+  const [abortController,setAbortController]=useState(null);
+  const fileInputRef=useRef(null);
+
+  const handleFiles=useCallback(newFiles=>{
+    const validExts=['.pdf','.pptx','.ppt'];
+    const accepted=Array.from(newFiles).filter(f=>validExts.some(ext=>f.name.toLowerCase().endsWith(ext)));
+    setFiles(prev=>[...prev,...accepted]);
+  },[]);
+  const removeFile=idx=>setFiles(prev=>prev.filter((_,i)=>i!==idx));
+
+  async function runPipeline(){
+    setError('');setOutput('');setExtractionData('');setStep('processing');setIsStreaming(true);
+    const controller=new AbortController();setAbortController(controller);
+    const chunkItems=[...files.map((f,i)=>({id:`extract-${i}`,name:f.name,phase:'extraction',model:cfg.flashModel,status:'pending'})),{id:'synthesis',name:'Final Synthesis',phase:'synthesis',model:cfg.activeModel,status:'pending'}];
+    setChunks(chunkItems);const totalSteps=chunkItems.length;let completed=0;const extractions=[];
+    try{
+      for(let i=0;i<files.length;i++){
+        const file=files[i];const chunkId=`extract-${i}`;
+        setChunks(prev=>prev.map(c=>c.id===chunkId?{...c,status:'running'}:c));
+        try{
+          const filePart=await prepareFilePart(cfg.apiKey,file,msg=>setChunks(prev=>prev.map(c=>c.id===chunkId?{...c,name:msg}:c)));
+          let promptText=`File name: "${file.name}"\n\n`;
+          if(overlapEnabled&&extractions.length>0)promptText+=sgBuildOverlap(extractions)+'\n\n';
+          promptText+=SG_EXTRACTION_PROMPT;
+          const parts=[filePart,{text:promptText}];
+          const result=await callGemini(cfg.apiKey,cfg.flashModel,parts,false,null,controller.signal);
+          extractions.push({fileName:file.name,data:result});
+          setChunks(prev=>prev.map(c=>c.id===chunkId?{...c,status:'done',name:file.name}:c));
+        }catch(err){if(err.name==='AbortError')throw err;setChunks(prev=>prev.map(c=>c.id===chunkId?{...c,status:'error'}:c));throw new Error(`Extraction failed for "${file.name}": ${err.message}`);}
+        completed++;setProgress(Math.round((completed/totalSteps)*100));
+      }
+      const extractionText=extractions.map(e=>`\u2550\u2550\u2550\u2550 EXTRACTION FROM: ${e.fileName} \u2550\u2550\u2550\u2550\n(Cite as: "${e.fileName}" + page/slide#)\n${e.data}`).join('\n\n');
+      setExtractionData(extractionText);
+      setChunks(prev=>prev.map(c=>c.id==='synthesis'?{...c,status:'running'}:c));
+      let filledMaster=SG_MASTER_PROMPT.replace('{COURSE}',courseName||'[Course]').replace('{EXAM}',examName||'[Exam]').replace('{OUTCOMES}',outcomes||'[None]').replace('{POINTS}',points||'[None]');
+      const synthPrompt=SG_SYNTHESIS_PROMPT.replace('{EXTRACTIONS}',extractionText).replace('{MASTER_PROMPT}',filledMaster);
+      const synthResult=await callGemini(cfg.apiKey,cfg.thinkingMode?cfg.proModel:cfg.flashModel,[{text:synthPrompt}],cfg.thinkingMode,cfg.thinkingLevel,controller.signal);
+      setOutput(synthResult);setChunks(prev=>prev.map(c=>c.id==='synthesis'?{...c,status:'done'}:c));setProgress(100);setStep('results');
+    }catch(err){setError(err.name==='AbortError'?'Cancelled.':err.message);setChunks(prev=>prev.map(c=>c.status==='running'?{...c,status:'error'}:c));}
+    cleanupUploadedFiles();
+    setIsStreaming(false);setAbortController(null);
+  }
+
+  async function rerunSynthesis(){
+    if(!extractionData)return;setError('');setOutput('');setStep('processing');setIsStreaming(true);
+    const controller=new AbortController();setAbortController(controller);
+    setChunks([{id:'synthesis',name:'Re-Synthesis',phase:'synthesis',model:cfg.activeModel,status:'running'}]);setProgress(50);
+    try{
+      let filledMaster=SG_MASTER_PROMPT.replace('{COURSE}',courseName||'[Course]').replace('{EXAM}',examName||'[Exam]').replace('{OUTCOMES}',outcomes||'[None]').replace('{POINTS}',points||'[None]');
+      const synthPrompt=SG_SYNTHESIS_PROMPT.replace('{EXTRACTIONS}',extractionData).replace('{MASTER_PROMPT}',filledMaster);
+      const result=await callGemini(cfg.apiKey,cfg.thinkingMode?cfg.proModel:cfg.flashModel,[{text:synthPrompt}],cfg.thinkingMode,cfg.thinkingLevel,controller.signal);
+      setOutput(result);setChunks(prev=>prev.map(c=>({...c,status:'done'})));setProgress(100);setStep('results');
+    }catch(err){setError(err.name==='AbortError'?'Cancelled.':err.message);setChunks(prev=>prev.map(c=>c.status==='running'?{...c,status:'error'}:c));}
+    setIsStreaming(false);setAbortController(null);
+  }
+
+  const copyOutput=()=>navigator.clipboard?.writeText(output);
+  const downloadOutput=()=>{const blob=new Blob([output],{type:'text/markdown'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`LATTE-Study-Guide-${examName||'output'}.md`;a.click();URL.revokeObjectURL(url);};
+  const downloadExtractions=()=>{if(!extractionData)return;const blob=new Blob([extractionData],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`LATTE-Extractions-${examName||'raw'}.txt`;a.click();URL.revokeObjectURL(url);};
+  const resetAll=()=>{setStep('upload');setOutput('');setChunks([]);setProgress(0);setError('');setExtractionData('');setShowExtractions(false);};
+  const canRun=cfg.apiKey.trim()&&files.length>0&&courseName.trim()&&examName.trim();
+  const renderedHTML=output?marked.parse(output):'';
+
+  return(
+    <div className="tool-panel">
+      <h2 className="tool-title">LATTE Study Guide Generator</h2>
+      <p className="tool-desc">Upload lecture PPTs & textbook PDFs → comprehensive LATTE study guide with supplemental tables A–J</p>
+
+      {/* Step indicator */}
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {['Configure','Process','Results'].map((s,i)=>{
+          const states=['upload','processing','results'];const cur=states.indexOf(step);
+          return <div key={s} style={{padding:'5px 14px',borderRadius:16,fontSize:11,fontWeight:600,background:i===cur?'var(--accent-glow)':i<cur?'rgba(52,211,153,.08)':'var(--bg-card)',border:`1px solid ${i===cur?'var(--accent)':i<cur?'var(--accent-green)':'var(--border)'}`,color:i===cur?'var(--accent)':i<cur?'var(--accent-green)':'var(--text-dim)',cursor:i===2&&step==='results'?'pointer':'default'}} onClick={()=>step==='results'&&i===0&&resetAll()}>{i+1} · {s}</div>;
+        })}
+      </div>
+
+      {error&&<div className="error-banner"><span>⚠</span><div><strong>Error:</strong> {error}{step==='processing'&&<div style={{marginTop:6,display:'flex',gap:6}}><button className="btn-secondary" onClick={resetAll} style={{padding:'5px 12px',fontSize:11}}>← Back</button>{extractionData&&<button className="btn-secondary" onClick={rerunSynthesis} style={{padding:'5px 12px',fontSize:11}}>↻ Retry Synthesis</button>}</div>}</div></div>}
+
+      {/* Upload / Configure */}
+      {step==='upload'&&<>
+        <div className="upload-zone" onClick={()=>fileInputRef.current?.click()} onDragOver={e=>{e.preventDefault();e.currentTarget.classList.add('dragover');}} onDragLeave={e=>e.currentTarget.classList.remove('dragover')} onDrop={e=>{e.preventDefault();e.currentTarget.classList.remove('dragover');handleFiles(e.dataTransfer.files);}}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+          <h3>Drop PowerPoints & PDFs</h3><p>or click to browse</p>
+          <input ref={fileInputRef} type="file" multiple accept=".pdf,.pptx,.ppt" style={{display:'none'}} onChange={e=>{handleFiles(e.target.files);e.target.value='';}}/>
+        </div>
+        {files.length>0&&<div style={{marginTop:8,marginBottom:16}}>{files.map((f,i)=>{const ext=getExt(f.name);return <div className="file-chip" key={i}><div className={`f-icon ${ext==='pdf'?'pdf':'pptx'}`}>{ext}</div><span className="f-name">{f.name}</span><span className="f-size">{formatSize(f.size)}</span><button className="f-rm" onClick={()=>removeFile(i)}>×</button></div>;})}</div>}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:4}}>
+          <div className="field-block"><label>Course Name <span className="badge-req">required</span></label><textarea rows={1} style={{minHeight:38,resize:'none'}} value={courseName} onChange={e=>setCourseName(e.target.value)} placeholder="e.g. Med Surg II (NU184)"/></div>
+          <div className="field-block"><label>Exam Name <span className="badge-req">required</span></label><textarea rows={1} style={{minHeight:38,resize:'none'}} value={examName} onChange={e=>setExamName(e.target.value)} placeholder="e.g. Exam 3 — Neuro"/></div>
+        </div>
+        <div className="field-block"><label>Outcomes <span className="badge-opt">optional</span></label><textarea rows={4} value={outcomes} onChange={e=>setOutcomes(e.target.value)} placeholder="Paste numbered outcomes..."/></div>
+        <div className="field-block"><label>Points <span className="badge-opt">optional</span></label><textarea rows={5} value={points} onChange={e=>setPoints(e.target.value)} placeholder="\u2022 Increased ICP\n\u2022 Glasgow Coma Scale"/></div>
+        <div className="toggle-row" style={{marginBottom:12}}><span>{overlapEnabled?'🔗 Overlap On':'Overlap Off'}</span><div className={`toggle-switch ${overlapEnabled?'on':''}`} onClick={()=>setOverlapEnabled(t=>!t)}/></div>
+        <button className="btn-primary" style={{width:'100%'}} disabled={!canRun} onClick={runPipeline}>{!cfg.apiKey.trim()?'Enter API Key':files.length===0?'Upload Files':!courseName.trim()||!examName.trim()?'Fill Required Fields':`Generate Study Guide — ${files.length} file${files.length>1?'s':''}`}</button>
+      </>}
+
+      {/* Processing */}
+      {step==='processing'&&<div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><h3 style={{fontSize:13,fontWeight:600,color:'var(--text-bright)'}}>{progress<100?'Processing...':'Complete'}</h3><span style={{fontSize:11,fontFamily:'JetBrains Mono',color:'var(--text-dim)'}}>{progress}%</span></div>
+        <div className="progress-bar"><div className="progress-fill" style={{width:`${progress}%`}}/></div>
+        <div style={{marginTop:10}}>{chunks.map(c=><div className="chunk-item" key={c.id}><div className={`chunk-dot ${c.status}`}>{c.status==='done'?'✓':c.status==='error'?'!':''}</div><span style={{flex:1,fontWeight:500}}>{c.name}</span><span style={{fontFamily:'JetBrains Mono',fontSize:9,color:'var(--accent)'}}>{c.model}</span><span style={{fontFamily:'JetBrains Mono',fontSize:9,color:'var(--text-dim)',textTransform:'uppercase'}}>{c.phase}</span></div>)}</div>
+        {isStreaming&&<button className="btn-danger" style={{width:'100%',marginTop:10}} onClick={()=>abortController?.abort()}>Cancel</button>}
+      </div>}
+
+      {/* Results */}
+      {step==='results'&&output&&<>
+        {extractionData&&<div className="retry-banner"><span style={{fontSize:12}}>Extractions cached — re-run synthesis with different settings.</span><button className="btn-secondary" onClick={rerunSynthesis} style={{whiteSpace:'nowrap'}}>↻ Re-Synthesize</button></div>}
+        {extractionData&&<><div className="ext-toggle" onClick={()=>setShowExtractions(s=>!s)}><span className={`arrow ${showExtractions?'open':''}`}>▶</span>View Raw Extractions<span style={{marginLeft:'auto',fontSize:10,color:'var(--text-dim)'}}>{(extractionData.length/1024).toFixed(0)}KB</span></div>{showExtractions&&<div className="ext-viewer">{extractionData}</div>}</>}
+        <div className="output-container">
+          <div className="output-toolbar"><h3>LATTE Study Guide</h3><div className="output-toolbar-actions"><button className="btn-secondary" onClick={copyOutput}>📋 Copy</button><button className="btn-secondary" onClick={downloadOutput}>⬇ .md</button><button className="btn-secondary" onClick={()=>exportAsTxt(output,`LATTE-Study-Guide-${examName||'output'}.txt`)}>⬇ .txt</button><button className="btn-secondary" onClick={()=>exportAsPdf(output,'LATTE Study Guide',`${courseName||'Course'} — ${examName||'Exam'}`)}>⬇ PDF</button>{extractionData&&<button className="btn-secondary" onClick={downloadExtractions}>📄 Extractions</button>}<button className="btn-secondary" onClick={resetAll}>↺ New</button></div></div>
+          <div className="output-body" dangerouslySetInnerHTML={{__html:renderedHTML}}/>
+        </div>
+      </>}
+    </div>
+  );
+}
+
+// ──── TOOL: Priority Analyzer ────
+function paChunkText(text,chunkSize=12000,overlapSize=1500){
+  let paragraphs=text.split(/\n{2,}/);if(paragraphs.length===1&&paragraphs[0].length>chunkSize)paragraphs=text.split(/\n/);
+  const segments=[];
+  for(const para of paragraphs){if(para.length<=chunkSize){segments.push(para);}else{const sentences=para.split(/(?<=[.!?])\s+/);let buf='';for(const sent of sentences){if(sent.length>chunkSize){if(buf){segments.push(buf);buf='';}for(let i=0;i<sent.length;i+=chunkSize)segments.push(sent.slice(i,i+chunkSize));}else if(buf.length+sent.length+1>chunkSize){segments.push(buf);buf=sent;}else{buf+=(buf?' ':'')+sent;}}if(buf)segments.push(buf);}}
+  const chunks=[];let current='';let overlapBuffer='';
+  for(const seg of segments){if(current.length+seg.length+2>chunkSize&&current.length>0){chunks.push(current.trim());const words=current.split(/\s+/);overlapBuffer='';for(let i=words.length-1;i>=0;i--){const c=words.slice(i).join(' ');if(c.length>overlapSize)break;overlapBuffer=c;}current=overlapBuffer?overlapBuffer+'\n\n'+seg:seg;}else{current+=(current?'\n\n':'')+seg;}}
+  if(current.trim())chunks.push(current.trim());return chunks;
+}
+
+function paBuildExtractPrompt(chunk,idx,total,prevSummary){
+  return `You are a nursing content analyst extracting priority data from a study guide chunk.\nThis is chunk ${idx+1} of ${total}.\n${prevSummary?`## Context from previous chunks\n${prevSummary}\n---\n`:''}\nAnalyze the content and extract every discrete testable concept. For each item, assign a tier:\n- **T1** — Safety-critical, NCLEX-priority, emergency interventions, delegation rules\n- **T2** — Core pathophysiology, standard assessments/interventions, common meds\n- **T3** — Background context, rarely tested details\n\nReturn a structured list:\n[T1/T2/T3] Item — Brief explanation\n\nGroup related items under topic subheadings. Be specific.\n\n## Content\n${chunk}`;
+}
+
+function paBuildSynthPrompt(extractions,context){
+  const combined=extractions.map((e,i)=>`### Chunk ${i+1}\n${e}`).join('\n\n---\n\n');
+  return `You are an expert nursing education content analyst specializing in Elsevier textbook pedagogy and NCLEX-style prioritization.\n\nYou have pre-extracted priority data from ${extractions.length} chunks. Each item is tagged T1/T2/T3.\n\nYour job:\n1. Deduplicate\n2. Resolve tier conflicts\n3. Re-evaluate using Elsevier hierarchy (pyramid points→T1, safety/drug alerts→T1, etc.)\n4. Organize under clear subheadings\n\nOutput in Markdown:\n\n## TIER 1 — Must Know\n[Items with WHY explanations]\n\n## TIER 2 — Should Know\n[Items]\n\n## TIER 3 — Good to Know\n[Items]\n\n---\n## Study Strategy\n3-5 bullet points.\n\n${context?`## Additional Context\n${context}\n\n`:''}\n## Extracted Data\n${combined}`;
+}
+
+function paParseTiers(text){
+  const t1=text.match(/(?:^|\n)##?\s*(?:🔴\s*)?TIER\s*1[:\s\-—]*(.*?)(?=\n##?\s*(?:🟡\s*)?TIER\s*2|$)/si);
+  const t2=text.match(/(?:^|\n)##?\s*(?:🟡\s*)?TIER\s*2[:\s\-—]*(.*?)(?=\n##?\s*(?:🔵\s*)?TIER\s*3|$)/si);
+  const t3=text.match(/(?:^|\n)##?\s*(?:🔵\s*)?TIER\s*3[:\s\-—]*(.*?)$/si);
+  if(!t1&&!t2&&!t3)return null;
+  return{tier1:(t1?t1[1]:'').trim(),tier2:(t2?t2[1]:'').trim(),tier3:(t3?t3[1]:'').trim()};
+}
+
+function PriorityAnalyzer(){
+  const cfg=useConfig();
+  const [file,setFile]=useState(null);
+  const [fileText,setFileText]=useState('');
+  const [context,setContext]=useState('');
+  const [chunkSize,setChunkSize]=useState(12000);
+  const [overlapSize,setOverlapSize]=useState(1500);
+  const [step,setStep]=useState('idle');
+  const [progress,setProgress]=useState(0);
+  const [phase,setPhase]=useState('');
+  const [output,setOutput]=useState('');
+  const [parsedTiers,setParsedTiers]=useState(null);
+  const [chunks,setChunks]=useState([]);
+  const [error,setError]=useState('');
+  const fRef=useRef(null);
+
+  const handleFile=useCallback(async f=>{
+    setFile(f);
+    try{
+      if(f.name.toLowerCase().endsWith('.pdf')){setFileText(await extractPdfText(f));}
+      else{const r=new FileReader();r.onload=()=>{let t=r.result;if(f.name.endsWith('.html')||f.name.endsWith('.htm')){const d=document.createElement('div');d.innerHTML=t;t=d.textContent||'';}setFileText(t);};r.readAsText(f);}
+    }catch(e){setFileText('');setError('Could not read file: '+e.message);}
+  },[]);
+
+  async function runAnalysis(){
+    if(!cfg.apiKey||!fileText)return;
+    const textChunks=paChunkText(fileText,chunkSize,overlapSize);const total=textChunks.length;
+    const chunkItems=[...textChunks.map((_,i)=>({id:`ext-${i}`,name:`Chunk ${i+1}/${total}`,phase:'extraction',status:'pending'})),{id:'synthesis',name:'Final Synthesis',phase:'synthesis',status:'pending'}];
+    setStep('processing');setProgress(0);setPhase(`${total} chunks`);setOutput('');setParsedTiers(null);setError('');setChunks(chunkItems);
+    const totalSteps=total+1;let completed=0;const extractions=[];
+    try{
+      for(let i=0;i<total;i++){
+        setChunks(p=>p.map(c=>c.id===`ext-${i}`?{...c,status:'running'}:c));setPhase(`Extracting chunk ${i+1}/${total}...`);setProgress(Math.floor(completed/totalSteps*90));
+        let prevSummary='';if(extractions.length>0){const last=extractions[extractions.length-1];prevSummary=last.length>2000?last.slice(0,2000)+'\n[...truncated]':last;}
+        try{
+          const prompt=paBuildExtractPrompt(textChunks[i],i,total,prevSummary);
+          const result=await callGemini(cfg.apiKey,cfg.flashModel,[{text:prompt}],false,null);
+          extractions.push(result);setChunks(p=>p.map(c=>c.id===`ext-${i}`?{...c,status:'done'}:c));
+        }catch(err){setChunks(p=>p.map(c=>c.id===`ext-${i}`?{...c,status:'error'}:c));extractions.push(`[ERROR: ${err.message}]`);}
+        completed++;setProgress(Math.floor(completed/totalSteps*90));
+      }
+      setChunks(p=>p.map(c=>c.id==='synthesis'?{...c,status:'running'}:c));setPhase('Synthesizing...');
+      const synthPrompt=paBuildSynthPrompt(extractions,context);
+      const synthModel=cfg.thinkingMode?cfg.proModel:cfg.flashModel;
+      const full=await callGemini(cfg.apiKey,synthModel,[{text:synthPrompt}],cfg.thinkingMode,cfg.thinkingLevel);
+      setOutput(full);setParsedTiers(paParseTiers(full));setChunks(p=>p.map(c=>c.id==='synthesis'?{...c,status:'done'}:c));setProgress(100);setStep('results');
+    }catch(e){setError(e.message);setStep('error');}
+  }
+
+  const copyOutput=()=>navigator.clipboard?.writeText(output);
+  const downloadMd=()=>{const blob=new Blob([output],{type:'text/markdown'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`priority-analysis.md`;a.click();URL.revokeObjectURL(url);};
+  const resetAll=()=>{setStep('idle');setOutput('');setParsedTiers(null);setError('');setProgress(0);setChunks([]);};
+
+  const tiers=parsedTiers;
+  const renderedHTML=output?marked.parse(output):'';
+
+  return(
+    <div className="tool-panel">
+      <h2 className="tool-title">Pyramid Priority Analyzer</h2>
+      <p className="tool-desc">Upload a study guide → Elsevier-style content triage into Tier 1/2/3 priorities</p>
+
+      <div style={{display:'flex',gap:16}}>
+        {/* Left: config */}
+        <div style={{width:280,flexShrink:0}}>
+          <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginBottom:12}}>
+            <div className="sb-label">Study Guide</div>
+            <div className={`upload-zone ${file?'':''}`.trim()} onClick={()=>fRef.current?.click()} style={{padding:file?'16px 14px':'24px 14px'}}>
+              <input ref={fRef} type="file" accept=".md,.txt,.html,.htm,.pdf" style={{display:'none'}} onChange={e=>{if(e.target.files[0])handleFile(e.target.files[0]);}}/>
+              {file?<><div style={{fontSize:11,color:'var(--accent-green)',fontWeight:600}}>✓ Loaded</div><div style={{fontSize:11,fontFamily:'JetBrains Mono',color:'var(--text)',marginTop:4,wordBreak:'break-all'}}>{file.name}</div><div style={{fontSize:10,color:'var(--text-dim)',marginTop:2}}>{formatSize(file.size)}</div></>:<><div style={{fontSize:24,marginBottom:4,opacity:.5}}>📄</div><p style={{fontSize:11,color:'var(--text-dim)'}}>Drop .md, .txt, .html, .pdf</p></>}
+            </div>
+          </div>
+          <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginBottom:12}}>
+            <div className="sb-label">Extra Context</div>
+            <textarea value={context} onChange={e=>setContext(e.target.value)} placeholder="e.g. 'Exam is on cardiac meds only'" rows={3}/>
+          </div>
+          <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginBottom:12}}>
+            <div className="sb-label">Chunking</div>
+            <div className="sb-field"><label>Chunk size</label><input type="number" value={chunkSize} onChange={e=>setChunkSize(parseInt(e.target.value)||12000)}/></div>
+            <div className="sb-field"><label>Overlap</label><input type="number" value={overlapSize} onChange={e=>setOverlapSize(parseInt(e.target.value)||1500)}/></div>
+          </div>
+          <button className="btn-primary" style={{width:'100%'}} disabled={!cfg.apiKey||!fileText||step==='processing'} onClick={runAnalysis}>{step==='processing'?'⏳ Analyzing...':'△ Extract Priorities'}</button>
+        </div>
+
+        {/* Right: output */}
+        <div style={{flex:1,minWidth:0}}>
+          {step==='idle'&&<div style={{textAlign:'center',padding:'60px 16px',color:'var(--text-dim)'}}>
+            <div style={{fontSize:40,marginBottom:10}}>△</div>
+            <div style={{fontSize:14,marginBottom:6}}>Upload a Study Guide</div>
+            <div style={{fontSize:11,maxWidth:360,margin:'0 auto',lineHeight:1.6}}>Load your LATTE output and this tool will triage content into Tier 1/2/3 priorities using an Elsevier-style lens.</div>
+          </div>}
+
+          {step==='processing'&&<div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:20}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}><h3 style={{fontSize:13,fontWeight:600,color:'var(--text-bright)'}}>Analyzing...</h3><span style={{fontFamily:'JetBrains Mono',fontSize:11,color:'var(--accent)'}}>{progress}%</span></div>
+            <div className="progress-bar"><div className="progress-fill" style={{width:`${progress}%`}}/></div>
+            <div style={{fontSize:11,fontFamily:'JetBrains Mono',color:'var(--text-dim)',marginTop:8}}>{phase}</div>
+            <div style={{marginTop:10}}>{chunks.map(c=><div className="chunk-item" key={c.id}><div className={`chunk-dot ${c.status}`}>{c.status==='done'?'✓':c.status==='error'?'!':''}</div><span style={{flex:1,fontWeight:500}}>{c.name}</span><span style={{fontSize:9,color:'var(--text-dim)',textTransform:'uppercase'}}>{c.phase}</span></div>)}</div>
+          </div>}
+
+          {step==='results'&&<>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+              <h2 style={{fontSize:16,fontWeight:700,color:'var(--text-bright)'}}>Priority Analysis</h2>
+              <div style={{display:'flex',gap:6}}><button className="btn-secondary" onClick={copyOutput}>📋 Copy</button><button className="btn-secondary" onClick={downloadMd}>⬇ .md</button><button className="btn-secondary" onClick={()=>exportAsTxt(output,'priority-analysis.txt')}>⬇ .txt</button><button className="btn-secondary" onClick={()=>exportAsPdf(output,'Pyramid Priority Analysis',file?file.name:'')}>⬇ PDF</button><button className="btn-secondary" onClick={resetAll}>↺ New</button></div>
+            </div>
+            {tiers&&(tiers.tier1||tiers.tier2||tiers.tier3)?<>
+              {tiers.tier1&&<div className="tier-section t1"><div className="tier-header"><span className="tier-badge t1">TIER 1</span><span className="tier-title">Must Know</span></div><div className="tier-body" dangerouslySetInnerHTML={{__html:marked.parse(tiers.tier1)}}/></div>}
+              {tiers.tier2&&<div className="tier-section t2"><div className="tier-header"><span className="tier-badge t2">TIER 2</span><span className="tier-title">Should Know</span></div><div className="tier-body" dangerouslySetInnerHTML={{__html:marked.parse(tiers.tier2)}}/></div>}
+              {tiers.tier3&&<div className="tier-section t3"><div className="tier-header"><span className="tier-badge t3">TIER 3</span><span className="tier-title">Good to Know</span></div><div className="tier-body" dangerouslySetInnerHTML={{__html:marked.parse(tiers.tier3)}}/></div>}
+            </>:<div className="output-container"><div className="output-toolbar"><h3>Full Analysis</h3></div><div className="output-body" dangerouslySetInnerHTML={{__html:renderedHTML}}/></div>}
+          </>}
+
+          {step==='error'&&<div className="error-banner"><span>⚠</span><div><strong>Failed:</strong> {error}<div style={{marginTop:6}}><button className="btn-secondary" onClick={resetAll}>↺ Try Again</button></div></div></div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──── TOOL: Anki Generator ────
+const ANKI_MASTER_PROMPT=`SYSTEM / ROLE
+
+You are an elite Medical Education Specialist, Nursing Clinical Instructor, and Anki Expert. Your task is to convert the provided PDF text into high-quality Anki cloze notes for a nursing student.
+
+Use the Straight A Nursing LATTE Method as the deck's organizational and tagging framework, but optimize each note for fast Anki review, not for textbook-style presentation.
+
+Your output must be:
+
+comprehensive
+PDF-grounded
+zero-skip on substantive facts
+highly atomic
+fast to review
+import-safe
+
+CORE OBJECTIVE
+
+Extract every substantive, testable clinical detail from the PDF into concise Anki cloze notes.
+
+Prioritize especially:
+
+drug names
+doses
+units
+routes
+frequencies
+timings
+lab values
+vital sign thresholds
+contraindications
+precautions
+monitoring parameters
+hold parameters
+notify thresholds
+adverse effects
+red flags
+patient education
+nursing actions
+procedural steps
+diagnostic interpretations
+
+Do not omit substantive details. Do not inflate the deck with filler, restatements, or near-duplicate notes.
+
+MASTER PRIORITY STACK
+
+When making decisions, follow this order:
+
+PDF-grounded accuracy
+Zero-skip coverage of substantive details
+Atomic recall speed
+Clear condition/topic anchoring
+LATTE organization in tags and sorting
+Elegance of wording
+
+If a more elegant or more structured card is slower to review, choose the faster card.
+
+When forced to choose between brevity and coverage, preserve coverage by splitting into more atomic notes rather than compressing details away.
+
+Do not sacrifice specificity for brevity; short cards must still contain enough context for one uniquely correct answer.
+
+Prefer the shortest wording that preserves full source meaning.
+
+TERMINOLOGY
+
+A note is one Anki import row: Text | Extra | Tags
+A card is one review prompt Anki generates from a cloze note
+When this prompt says "coverage," "count," or "output size," it refers to notes
+A note with c1, c2, and c3 produces three review cards
+
+ABSOLUTE DIRECTIVES (NON-NEGOTIABLE)
+
+ZERO-SKIP: Do not omit any substantive PDF detail.
+PDF ONLY: The PDF is the sole source of truth.
+NO UNSOURCED FACTS: Do not add checkable facts absent from the PDF.
+ANKI SAFE: Every import line must be one line only and contain exactly two pipes.
+NO INTERNAL PIPES: Never place | inside any field. Replace with / if needed.
+FAST REVIEW: Prefer one fact = one punchy card.
+NO FLUFF: Do not preserve textbook wording when shorter wording preserves meaning.
+NO TARGET-PADDING: Do not create notes to satisfy a note-count target.
+
+OUTPUT FORMAT (LOCK THIS FIRST)
+
+Output EXACTLY TWO plain-text code blocks and nothing else, unless the PDF itself contains genuine ambiguity or contradiction. If so, include one brief note before the code blocks.
+CODE BLOCK #1 — ANKI IMPORT
+
+Pipe-delimited notes only.
+CODE BLOCK #2 — COVERAGE LEDGER
+
+Verification only. Not for Anki import.
+
+ANKI IMPORT RULES
+
+Each line must follow:
+
+Text | Extra | Tags
+Hard Rules
+
+one note per line
+no internal line breaks
+exactly two pipes per line
+no internal pipes inside fields
+no bullets
+no numbering
+no commentary
+no wrapped tags
+Text Field Rule
+
+The Text field does NOT need to begin with a LATTE header.
+
+Use short visible condition/topic cues only when needed for isolated review clarity, such as:
+
+[HF]
+[COPD]
+[Warfarin]
+[ABG]
+[HF / Look]
+
+Do not add a cue if the stem is already uniquely identifiable.
+Text Field Style
+
+The Text field must be:
+
+short
+direct
+clinically specific
+easy to answer in about 5 seconds
+written in fast-review phrasing, not textbook prose
+
+Preferred style:
+
+one fact = one punchy card
+short stems
+minimal filler
+direct wording
+enough context for one clear answer
+Specificity Guardrail
+
+A short card is only acceptable if the hidden answer remains uniquely inferable from the visible context.
+
+If shortening would remove the qualifier that makes the answer unique, keep the qualifier.
+
+If two conditions, drugs, thresholds, or actions could fit the same shortened stem, add brief condition/topic context or split into separate notes.
+
+TAGGING RULES
+
+Every note must include:
+
+One LATTE domain tag:
+
+Nursing::LATTE::BriefPatho
+Nursing::LATTE::Look
+Nursing::LATTE::Assess
+Nursing::LATTE::Tests
+Nursing::LATTE::Treatments
+Nursing::LATTE::Educate
+
+One clinical-topic subtag when applicable:
+
+Example: Nursing::LATTE::Tests::Labs
+Example: Nursing::LATTE::Treatments::Meds
+
+One condition/topic tag:
+
+If the PDF names a condition, use Condition::CamelCaseName
+If no disease is named, use the chapter topic/drug/class as the condition tag
+Do not invent diseases
+
+One exam-priority tier tag:
+
+Tier::1 = must-know for exams — core concepts, hallmark signs/symptoms, priority nursing interventions, safety concerns, major labs, major medications and their critical parameters, key complications, essential patient teaching. If a fact would appear on an NCLEX-style question or was emphasized in lecture objectives, it is Tier 1.
+
+Tier::2 = important supporting detail — secondary signs/symptoms, additional monitoring parameters, less common but testable drug side effects, supplemental pathophysiology that clarifies Tier 1 content, supporting lab interpretations, additional teaching points. Likely to appear on exams but less critical than Tier 1.
+
+Tier::3 = nice to know — minor details, rare exceptions, deep mechanism details, exhaustive list completions, edge-case qualifiers, facts unlikely to be tested unless an instructor specifically emphasizes them. Still extracted for completeness but lowest study priority.
+
+Tier Assignment Rules:
+
+Every note MUST have exactly one tier tag.
+When uncertain, round UP in priority (Tier 2 -> Tier 1) rather than down.
+Aim for roughly: 50-60% Tier 1, 25-35% Tier 2, 10-15% Tier 3.
+Drug names/doses/routes, hold parameters, notify thresholds, contraindications, and safety warnings are ALWAYS Tier 1.
+Patient education on when to seek emergency care is ALWAYS Tier 1.
+Do NOT omit Tier 3 content — still extract it. Tiering is for study prioritization, not for skipping extraction.
+
+Tag Integrity
+
+no spaces inside tags
+keep LATTE domain tag no matter what
+if tags become too long, drop optional subtags first
+keep all tags on one line
+
+NOTE SORT ORDER
+
+Sort notes:
+
+by Condition/Topic
+then by LATTE bucket in this order:
+
+Brief Patho
+Look
+Assess
+Tests
+Treatments
+Educate
+then by order of appearance in the PDF within each bucket
+
+COVERAGE LEDGER FORMAT
+
+Use these exact headers:
+COVERAGE LEDGER
+EXTRACTION INDEX (raw items found in PDF)
+Drug Names
+
+[Drug] ...
+Numeric Values (value + unit)
+
+[Value] ...
+Contraindications/Precautions (named conditions)
+
+[Item] ...
+Monitoring Parameters
+
+[Item] ...
+Complications/Adverse Effects/Red Flags
+
+[Item] ...
+Client Education Points
+
+[Item] ...
+Conditions/Topics Detected (for tagging/sort)
+
+[Item] ...
+COVERAGE MAP (1-based line numbers into ANKI IMPORT)
+
+[Item] -> line #[n] (cloze target / visible context)
+
+Every indexed item must be mapped. If any item is missing, fix coverage before output.
+
+PHASE 0 — INPUT HANDLING
+
+Treat the PDF as the sole source of truth.
+Clean repeated headers, footers, page numbers, offsets, citation markers, and artifact text internally.
+If duplicate content appears, keep it once unless the duplicate adds meaningful differences.
+Remove all non-Anki markup.
+Allowed Output Syntax Only
+
+The only special syntax allowed in output is:
+
+{{c1::...}}
+{{c2::...}}
+{{c3::...}}
+|
+:: in tags
+optional short bracketed context cues
+
+PHASE 1 — LATTE ASSIGNMENT
+
+Before writing notes, assign each extractable fact to exactly one LATTE bucket.
+LATTE Definitions
+
+Brief Patho = disease mechanism, etiology, classification, what is going wrong
+Look = signs, symptoms, complaints, red flags, deterioration signs, observable side effects
+Assess = what the nurse assesses, checks, asks, inspects, trends, monitors, sequences
+Tests = labs, imaging, diagnostics, values, ranges, units, interpretations
+Treatments = medications, doses, routes, timing, interventions, procedures, safety steps, contraindications, precautions, hold/notify thresholds
+Educate = patient/family teaching, discharge teaching, home management, follow-up, when to seek care
+Rule
+
+Every note must belong to exactly one LATTE bucket. If a sentence spans multiple buckets, split it.
+Look vs Assess
+
+Look = what is present
+Assess = what the nurse does
+Quick Bucket Rules
+
+drug MOA stated in PDF -> Treatments
+disease cause/etiology -> Brief Patho
+disease subtype/classification -> Brief Patho
+side effects/findings -> Look
+assessment actions -> Assess
+labs/values/ranges -> Tests
+meds/interventions/hold parameters -> Treatments
+home teaching -> Educate
+
+PHASE 1.25 — GEMINI FAST-REVIEW STYLE RULE
+
+Rewrite long source wording into concise review language.
+
+Target style:
+
+compressed
+punchy
+minimal
+non-fluffy
+easy to scan
+still precise
+
+Examples of desired compression:
+
+"The patient should report weight gain of 2 lb in 24 hours" -> Report weight gain of {{c1::2 lb in 24 hr}}
+"Aspirin should be avoided in children with viral illness because of the risk of Reye syndrome" -> [Aspirin] Avoid in children with viral illness -> risk of {{c1::Reye syndrome}}
+"Monitor potassium levels while taking loop diuretics" -> [Loop diuretics] Monitor {{c1::potassium}}
+
+Do not write essay-like stems.
+Coverage-Over-Compression Rule
+
+If compressing a sentence would drop a threshold, qualifier, timing, route, population, exception, or condition that changes meaning, do NOT compress it away.
+
+Instead:
+
+keep the qualifier in the same note, or
+split the content into multiple atomic notes
+
+Examples of details that must not be lost for brevity:
+
+exact dose
+exact unit
+frequency
+route
+timing
+hold threshold
+notify threshold
+who the instruction applies to
+when to seek care
+contraindication condition
+comparison word such as increased/decreased/high/low/above/below
+
+PHASE 1.5 — ATOMICITY RULES
+Core Rule
+
+Each note should test one tightly linked clinical idea.
+Split When
+
+one sentence contains unrelated facts
+one card would be slow to answer
+one note would become a list-recall prompt
+facts matter independently
+brevity would otherwise force omission of a qualifier needed for full meaning
+Combine When
+
+facts are naturally linked
+one fact helps recall the other
+the pair/cluster is clinically taught as one unit
+drug + dose + route belong together
+threshold + action belong together
+Hard Limits
+
+max 3 unique cloze numbers per note
+each cloze hides one atomic fact
+no "name all" prompts
+
+PHASE 1.75 — LIST HANDLING
+
+Never test 3+ items in one hidden cloze. Never drop list items.
+List Rules
+
+Group up to 3 items only if they genuinely belong together.
+Split independent items into separate notes.
+Split lists longer than 3 into multiple notes.
+Monitoring Panel Exception
+
+If the PDF gives one unified monitoring directive, the stem may contain more than 3 visible items, but only 2-3 items may be cloze targets in that note.
+
+PHASE 1.9 — ANTI-REDUNDANCY + ANTI-OVERFRAGMENTATION
+Anti-Redundancy
+
+If two notes share >=80% identical visible text and differ only by cloze target, combine or rewrite them.
+Anti-Overfragmentation
+
+Do not split so aggressively that several neighboring notes become tiny near-duplicates with nearly identical context.
+
+Prefer:
+
+one clean 2-3 cloze note for tightly linked facts
+
+Avoid:
+
+multiple repetitive micro-notes that feel the same
+Cross-Class Consolidation
+
+If the PDF repeats the same teaching point, adverse effect, or precaution across related drug classes, combine them when doing so improves efficiency without obscuring meaning.
+
+PHASE 2 — SUBSTANTIVE DETAIL THRESHOLD
+
+A detail is substantive if it includes:
+
+nursing action
+measurable value
+drug name
+route
+dose
+timing
+frequency
+duration
+safety warning
+red flag
+adverse effect
+contraindication
+precaution
+monitoring parameter
+evaluation criterion
+patient teaching point
+hold/notify threshold
+diagnostic interpretation
+
+Do not waste notes on filler or decorative overviews.
+
+You may create at most 2 overview/scaffolding notes per major section, and only if they contain a real testable contrast or organizing concept.
+
+PHASE 3 — EXHAUSTIVE EXTRACTION BY LATTE
+Brief Patho
+
+Extract every disease mechanism, etiology, and classification explicitly given.
+Look
+
+Extract every sign, symptom, complaint, red flag, deterioration sign, and observable medication effect.
+Assess
+
+Extract every nursing assessment action, including what to assess, how to assess, what to trend, and timing/frequency if stated.
+Tests
+
+Extract every lab, diagnostic test, imaging finding, exact value, threshold, range, unit, and stated interpretation.
+Treatments
+
+Extract every medication, route, dose, frequency, timing, intervention, procedure, sequence, protocol, safety step, contraindication, precaution, hold parameter, and notify threshold.
+
+Drug MOA belongs here only if explicitly stated in the PDF.
+Educate
+
+Extract every patient/family teaching point, discharge instruction, self-management point, follow-up instruction, and "when to call/seek care" trigger.
+
+PHASE 3.5 — EXTRA FIELD RULES (LEAN BY DEFAULT)
+
+The Extra field should support retention, not slow the deck down.
+Default Extra Style
+
+Prefer very short cue-style extras:
+
+usually 0-8 words
+3-12 words acceptable if needed
+phrase fragments are fine
+full sentences are uncommon
+
+Examples:
+
+Bleeding risk
+Monitor for sedation
+Volume loss cue
+Escalate worsening dyspnea
+Teach home safety
+Recheck labs
+Full-Sentence Extra Allowed Only If Needed
+
+Use one sentence only if necessary to:
+
+preserve a crucial PDF-stated why
+explain a threshold/action link
+clarify a non-obvious distinction
+prevent misunderstanding
+Extra Field Hard Rules
+
+do not pad
+do not lecture
+do not restate the stem unless it adds value
+do not add checkable facts absent from the PDF
+
+PHASE 3.75 — EXTRA FIELD GROUNDING TIERS
+Tier 1 (Preferred)
+
+Closely paraphrase the PDF's stated mechanism, reason, consequence, or nursing implication.
+Tier 2 (Fallback)
+
+If the PDF gives no stated why, use broad nursing logic only.
+
+Allowed style:
+
+Urgent change may need escalation
+Monitor closely for deterioration
+Teaching supports safe home use
+Tier 3 (Prohibited Unless Explicitly in PDF)
+
+Do not introduce:
+
+named receptors
+named pathways
+added physiology facts
+extra pharmacology facts
+black-box warnings not in PDF
+checkable mechanisms not stated in source
+
+PHASE 4 — ZERO-SKIP COVERAGE AUDIT (MANDATORY)
+
+Internally verify that nothing substantive was dropped.
+
+Must capture:
+
+every drug name
+every numeric value + unit
+every contraindication/precaution
+every monitoring parameter
+every adverse effect/red flag
+every patient education point
+every hold parameter
+every notify threshold
+every named condition/topic needed for tagging/sorting
+LATTE Completeness Check
+
+For each named condition/topic, create at least one note in every LATTE bucket where the PDF provides content.
+
+Do not invent notes for empty buckets.
+Coverage Calibration
+
+If output seems too short for the density of the PDF, re-audit for omitted numbers, meds, teaching points, thresholds, qualifiers, or repeated sections.
+
+Do not add filler to increase count.
+Specificity Re-Audit
+
+Before output, re-check whether any shortened note lost a qualifier required to make the answer unique.
+
+If yes, revise by:
+
+adding a brief context cue,
+restoring the key qualifier, or
+splitting into separate atomic notes
+
+PHASE 5 — PRE-OUTPUT AUDIT
+
+Before outputting, internally confirm:
+
+all substantive items were captured
+every note is in the correct LATTE bucket
+Look and Assess are not conflated
+wording is fast and punchy
+no "name all" cards remain
+no near-duplicate templates remain
+multi-cloze is used only when it improves review efficiency
+no overfragmentation remains
+every import line is single-line and has exactly two pipes
+no field contains an internal pipe
+tags are valid and on one line
+every indexed item appears in the coverage ledger map
+no note is so short that multiple answers could reasonably fit
+
+If anything fails, fix it before output.
+
+FINAL OUTPUT REQUIREMENT
+
+Print exactly two code blocks:
+
+ANKI IMPORT
+COVERAGE LEDGER
+
+Nothing else.
+
+FINAL GATE (MUST PASS)
+
+Before output, internally confirm:
+
+Coverage: all drugs, values, units, contraindications, precautions, monitoring parameters, adverse effects, red flags, education points, hold parameters, notify thresholds, and key qualifiers are represented.
+LATTE accuracy: correct bucket assignment; Look vs Assess kept distinct.
+Atomicity: notes are fast, specific, and not overloaded.
+Cloze correctness: max 3 unique cloze numbers; each cloze is uniquely answerable.
+Deduping: no repetitive template spam.
+Efficiency: wording is concise and Anki-friendly.
+Formatting: exactly two code blocks; each line has exactly two pipes.
+Grounding: no checkable claims beyond the PDF.
+Specificity: shortened wording did not remove the context needed for one uniquely correct answer.
+
+CRITICAL REMINDERS
+
+LATTE belongs in tags and organization first, not as forced visible formatting on every card.
+One fact = one punchy card.
+Coverage is enforced by the ledger, not by making cards wordy.
+Never drop list items.
+Never add unsourced facts.
+Keep Extra lean unless clarity truly requires more.
+Fast recall beats pretty phrasing.
+When brevity threatens coverage, split into more atomic notes.
+When brevity threatens uniqueness, restore the missing qualifier.
+Every note MUST include a Tier::1, Tier::2, or Tier::3 tag. When in doubt, round UP in priority.
+
+BEGIN`;
+
+function ankiChunkText(text,max=12000,overlapPages=2){
+  const raw=text.split(/\n--- PAGE \d+ ---\n/).filter(Boolean);if(raw.length===0)return[text];
+  const pageGroups=[];let curGroup=[],curLen=0;
+  for(let i=0;i<raw.length;i++){if(curLen+raw[i].length>max&&curGroup.length>0){pageGroups.push([...curGroup]);curGroup=[];curLen=0;}curGroup.push(i);curLen+=raw[i].length;}
+  if(curGroup.length>0)pageGroups.push(curGroup);if(pageGroups.length<=1)return[raw.join('\n').trim()];
+  const chunks=[];
+  for(let g=0;g<pageGroups.length;g++){let pi=[...pageGroups[g]];if(g>0&&overlapPages>0){const prev=pageGroups[g-1];const os=Math.max(0,prev.length-overlapPages);const oi=prev.slice(os);const ex=new Set(pi);pi=[...oi.filter(idx=>!ex.has(idx)),...pi];}chunks.push(pi.map(idx=>raw[idx]).join('\n').trim());}
+  return chunks;
+}
+
+function ankiParseCards(raw){
+  const cbr=/```[\s\S]*?\n([\s\S]*?)```/g;const blocks=[];let m;while((m=cbr.exec(raw))!==null)blocks.push(m[1].trim());
+  const ankiBlock=blocks[0]||raw;const cards=[];
+  for(const line of ankiBlock.split('\n')){const t=line.trim();if(!t||!t.includes('|'))continue;const pts=t.split('|');if(pts.length>=2)cards.push({id:crypto.randomUUID(),text:pts[0].trim(),extra:(pts[1]||'').trim(),tags:(pts[2]||'').trim(),keep:true});}
+  return{cards,ledger:blocks[1]||''};
+}
+
+function TierBadge({tier}){
+  const cls=tier==='1'?'t1':tier==='2'?'t2':tier==='3'?'t3':'';
+  const label=tier==='1'?'T1':tier==='2'?'T2':tier==='3'?'T3':'?';
+  return <span className={`tier-badge ${cls}`}>{label}</span>;
+}
+
+function AnkiGenerator(){
+  const cfg=useConfig();
+  const [files,setFiles]=useState([]);
+  const [chunkSz,setChunkSz]=useState(12000);
+  const [overlapPg,setOverlapPg]=useState(2);
+  const [focusContext,setFocusContext]=useState('');
+  const [outcomes,setOutcomes]=useState('');
+  const [points,setPoints]=useState('');
+  const [busy,setBusy]=useState(false);
+  const [prog,setProg]=useState(0);
+  const [logs,setLogs]=useState([]);
+  const [cards,setCards]=useState([]);
+  const [ledger,setLedger]=useState('');
+  const [view,setView]=useState('table');
+  const [tierFilter,setTierFilter]=useState('all');
+  const [editCard,setEditCard]=useState(null);
+  const fRef=useRef(null);
+
+  const model=cfg.thinkingMode?cfg.proModel:cfg.flashModel;
+  const getTier=useCallback(tags=>{const m=tags.match(/Tier::(\d)/);return m?m[1]:'?';},[]);
+  const filteredCards=useMemo(()=>tierFilter==='all'?cards:cards.filter(c=>getTier(c.tags)===tierFilter),[cards,tierFilter,getTier]);
+  const tierCounts=useMemo(()=>{const ct={'1':0,'2':0,'3':0,'?':0};cards.forEach(c=>{const t=getTier(c.tags);ct[t]=(ct[t]||0)+1;});return ct;},[cards,getTier]);
+
+  const log=useCallback((msg,t='')=>setLogs(p=>[...p,{msg,t,ts:new Date().toLocaleTimeString()}]),[]);
+  const addFiles=useCallback(fl=>{const ok=Array.from(fl).filter(f=>f.type==='application/pdf'||f.type.startsWith('image/'));setFiles(p=>[...p,...ok]);},[]);
+
+  // Build optional focus context block
+  function buildFocusBlock(){
+    const parts=[];
+    if(outcomes.trim())parts.push(`OUTCOMES (Learning Objectives the student must master):\n${outcomes.trim()}`);
+    if(points.trim())parts.push(`POINTS (Specific content that must be covered):\n${points.trim()}`);
+    if(focusContext.trim())parts.push(`ADDITIONAL CONTEXT:\n${focusContext.trim()}`);
+    if(!parts.length)return'';
+    return`\n\n═══ STUDENT-PROVIDED FOCUS CONTEXT ═══\n${parts.join('\n\n')}\n\nINSTRUCTIONS FOR FOCUS CONTEXT:\n- If Outcomes are listed, ensure EVERY outcome is covered by at least one card.\n- If Points are listed, ensure EVERY point has dedicated cards.\n- Use these to guide Tier assignment: content matching outcomes/points should be Tier 1.\n- If the source material is non-nursing (e.g., anatomy, physiology, chemistry, biology), adapt tag hierarchy to match the subject. Use Topic:: instead of Condition:: and subject-appropriate domain tags instead of Nursing::LATTE:: (e.g., AandP::Musculoskeletal::Structure, Bio::CellBiology::Mitosis). Still use the Tier system and the same card quality standards.\n═══════════════════════════════════════\n`;
+  }
+
+  const run=useCallback(async()=>{
+    if(!cfg.apiKey){log('Enter API key first.','err');return;}if(!files.length){log('Upload files.','err');return;}
+    setBusy(true);setProg(0);setLogs([]);setCards([]);setLedger('');
+    const focusBlock=buildFocusBlock();
+    try{
+      log('Extracting content...','warn');let allTxt='';const imgs=[];
+      for(const f of files){if(f.type==='application/pdf'){log('Reading '+f.name);allTxt+='\n\n=== '+f.name+' ===\n'+await extractPdfText(f);}else if(f.type.startsWith('image/')){log('Preparing '+f.name);const imgPart=await prepareFilePart(cfg.apiKey,f,msg=>log(msg,'warn'));imgs.push(imgPart);}}
+      const chunks=allTxt.trim()?ankiChunkText(allTxt,chunkSz,overlapPg):[''];const n=chunks.length||1;
+      log(`${n} chunk(s) — Model: ${model}${cfg.thinkingMode?` [Thinking: ${cfg.thinkingLevel}]`:''}${focusBlock?' — with focus context':''}`, 'warn');
+      let all=[],allLedg='';
+      for(let i=0;i<n;i++){
+        log(`Chunk ${i+1}/${n}...`,'warn');const parts=[];if(i===0&&imgs.length)parts.push(...imgs);
+        const ctx=n>1?`\n\n[CHUNK ${i+1} of ${n}. Process ALL content.]`:'';
+        parts.push({text:ANKI_MASTER_PROMPT+focusBlock+'\n\n[INSERT PDF TEXT HERE]\n\n'+(chunks[i]||'')+ctx});
+        const resp=await callGemini(cfg.apiKey,model,parts,cfg.thinkingMode,cfg.thinkingLevel);
+        const{cards:cc,ledger:cl}=ankiParseCards(resp);all=[...all,...cc];allLedg+=cl?'\n--- Chunk '+(i+1)+' ---\n'+cl:'';
+        setProg(((i+1)/n)*100);log(`Chunk ${i+1} done — ${cc.length} cards`,'ok');
+      }
+      const seen=new Set();const deduped=all.filter(c=>{const k=c.text.toLowerCase().replace(/\s+/g,' ').slice(0,120);if(seen.has(k))return false;seen.add(k);return true;});
+      if(all.length-deduped.length>0)log(`Removed ${all.length-deduped.length} duplicate(s)`,'warn');
+      setCards(deduped);setLedger(allLedg);log(`Complete! ${deduped.length} cards ready.`,'ok');
+    }catch(e){log('Error: '+e.message,'err');}finally{cleanupUploadedFiles();setBusy(false);}
+  },[cfg,files,chunkSz,overlapPg,model,log]);
+
+  const toggle=useCallback(id=>setCards(p=>p.map(c=>c.id===id?{...c,keep:!c.keep}:c)),[]);
+  const del=useCallback(id=>setCards(p=>p.filter(c=>c.id!==id)),[]);
+  const updateField=useCallback((id,f,v)=>setCards(p=>p.map(c=>c.id===id?{...c,[f]:v}:c)),[]);
+
+  const exportTxt=useCallback(()=>{
+    const kept=(tierFilter!=='all'?filteredCards:cards).filter(c=>c.keep);if(!kept.length)return;
+    const blob=new Blob([kept.map(c=>`${c.text} | ${c.extra} | ${c.tags}`).join('\n')],{type:'text/plain'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`latte_anki_import${tierFilter!=='all'?'_tier'+tierFilter:''}.txt`;a.click();URL.revokeObjectURL(a.href);
+  },[cards,filteredCards,tierFilter]);
+
+  const keptCount=cards.filter(c=>c.keep).length;
+
+  return(
+    <div className="tool-panel">
+      <h2 className="tool-title">LATTE Anki Generator</h2>
+      <p className="tool-desc">Upload PDFs → Anki cloze cards with LATTE tagging, tier system, and coverage ledger</p>
+
+      {/* Upload */}
+      <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:18,marginBottom:14}}>
+        <div className="upload-zone" onClick={()=>fRef.current?.click()} onDragOver={e=>{e.preventDefault();e.currentTarget.classList.add('dragover');}} onDragLeave={e=>e.currentTarget.classList.remove('dragover')} onDrop={e=>{e.preventDefault();e.currentTarget.classList.remove('dragover');addFiles(e.dataTransfer.files);}}>
+          <input ref={fRef} type="file" accept=".pdf,image/*" multiple style={{display:'none'}} onChange={e=>{addFiles(e.target.files);e.target.value='';}}/>
+          <div style={{fontSize:28,marginBottom:4,opacity:.6}}>📄</div>
+          <p style={{fontSize:12,color:'var(--text)'}}>Drop PDFs or images, or <strong style={{color:'var(--accent)'}}>click to browse</strong></p>
+        </div>
+        {files.map((f,i)=><div className="file-chip" key={i}><div className={`f-icon ${f.type.startsWith('image/')?'txt':'pdf'}`}>{f.type.startsWith('image/')?'IMG':'PDF'}</div><span className="f-name">{f.name}</span><span className="f-size">{formatSize(f.size)}</span><button className="f-rm" onClick={()=>setFiles(p=>p.filter((_,j)=>j!==i))}>×</button></div>)}
+
+        {/* Optional focus context fields */}
+        <div style={{marginTop:12,padding:14,background:'var(--bg-input)',borderRadius:'var(--radius)',border:'1px solid var(--border)'}}>
+          <div style={{fontSize:10,fontWeight:600,textTransform:'uppercase',letterSpacing:1,color:'var(--text-dim)',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+            <span>Focus Context</span><span className="badge-opt">optional</span>
+          </div>
+          <div style={{fontSize:10,color:'var(--text-dim)',lineHeight:1.5,marginBottom:10}}>
+            Guide card generation toward specific topics. Works for nursing <em>and</em> non-nursing content (A&P, chemistry, etc.) — when non-nursing content is detected, LATTE tags adapt to match the subject.
+          </div>
+          <div className="field-block" style={{marginBottom:8}}>
+            <label style={{fontSize:11}}>Outcomes <span className="badge-opt">optional</span></label>
+            <textarea rows={3} value={outcomes} onChange={e=>setOutcomes(e.target.value)} placeholder={"e.g.:\n1. Describe the structure and function of skeletal muscle\n2. Explain the sliding filament mechanism"}/>
+          </div>
+          <div className="field-block" style={{marginBottom:8}}>
+            <label style={{fontSize:11}}>Points <span className="badge-opt">optional</span></label>
+            <textarea rows={3} value={points} onChange={e=>setPoints(e.target.value)} placeholder={"\u2022 Sarcomere structure (A-band, I-band, Z-disc)\n\u2022 Neuromuscular junction\n\u2022 Calcium role in contraction"}/>
+          </div>
+          <div className="field-block">
+            <label style={{fontSize:11}}>Additional Context <span className="badge-opt">optional</span></label>
+            <textarea rows={2} value={focusContext} onChange={e=>setFocusContext(e.target.value)} placeholder="e.g. 'Focus on Ch. 10 only' or 'Exam covers cardiac system' or 'This is a chemistry textbook'"/>
+          </div>
+        </div>
+
+        <div style={{display:'flex',gap:8,marginTop:12}}>
+          <button className="btn-primary" onClick={run} disabled={busy||!files.length||!cfg.apiKey}>{busy?'⟳ Processing...':'▶ Generate Cards'}</button>
+          {files.length>0&&!busy&&<button className="btn-secondary" onClick={()=>setFiles([])}>Clear</button>}
+        </div>
+      </div>
+
+      {/* Progress */}
+      {(busy||logs.length>0)&&<div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginBottom:14}}>
+        <div className="progress-bar"><div className="progress-fill" style={{width:prog+'%'}}/></div>
+        <div style={{fontSize:10,color:'var(--text-dim)',margin:'6px 0'}}>{Math.round(prog)}%</div>
+        <div style={{maxHeight:140,overflowY:'auto',fontFamily:'JetBrains Mono',fontSize:10.5,background:'var(--bg-deep)',border:'1px solid var(--border)',borderRadius:6,padding:8,lineHeight:1.8}}>
+          {logs.map((l,i)=><div key={i} style={{color:l.t==='ok'?'var(--accent-green)':l.t==='err'?'var(--accent-red)':l.t==='warn'?'var(--accent-warm)':'var(--text-dim)'}}>[{l.ts}] {l.msg}</div>)}
+        </div>
+      </div>}
+
+      {/* Cards */}
+      {cards.length>0&&<div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:18}}>
+        <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap',alignItems:'center'}}>
+          <span style={{fontSize:11,color:'var(--text-dim)',fontWeight:500}}>TIERS:</span>
+          {['1','2','3'].map(t=><button key={t} className={`tier-btn t${t} ${tierFilter===t?'active':''}`} onClick={()=>setTierFilter(tierFilter===t?'all':t)}>T{t} <b>{tierCounts[t]}</b></button>)}
+          {tierFilter!=='all'&&<button className="btn-secondary" style={{padding:'3px 8px',fontSize:10}} onClick={()=>setTierFilter('all')}>Show All</button>}
+        </div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:6}}>
+          <span style={{fontSize:12,color:'var(--text-dim)'}}><b style={{color:'var(--text)'}}>{filteredCards.length}</b> cards · <b style={{color:'var(--accent-green)'}}>{keptCount}</b> kept</span>
+          <div style={{display:'flex',gap:6}}>
+            <div style={{display:'flex',background:'var(--bg-input)',border:'1px solid var(--border)',borderRadius:6,overflow:'hidden'}}>
+              {['table','list'].map(v=><button key={v} onClick={()=>setView(v)} style={{background:view===v?'var(--accent)':'none',border:'none',color:view===v?'#fff':'var(--text-dim)',padding:'4px 12px',fontSize:11,cursor:'pointer',fontFamily:'DM Sans',fontWeight:500}}>{v==='table'?'Table':'List'}</button>)}
+            </div>
+            <button className="btn-primary" style={{padding:'6px 14px',fontSize:12}} onClick={exportTxt}>⬇ Export .txt</button>
+          </div>
+        </div>
+
+        {view==='table'&&<div className="anki-tbl-wrap"><table><thead><tr><th style={{width:36}}>✓</th><th style={{width:38}}>Tier</th><th>Text</th><th style={{width:'16%'}}>Extra</th><th style={{width:'16%'}}>Tags</th><th style={{width:36}}></th></tr></thead><tbody>
+          {filteredCards.map(c=><tr key={c.id} className={c.keep?'':'dim'}><td><input type="checkbox" checked={c.keep} onChange={()=>toggle(c.id)} style={{accentColor:'var(--accent)'}}/></td><td><TierBadge tier={getTier(c.tags)}/></td><td><textarea className="cell-ta" value={c.text} rows={2} onChange={e=>updateField(c.id,'text',e.target.value)}/></td><td><textarea className="cell-ta" value={c.extra} rows={2} onChange={e=>updateField(c.id,'extra',e.target.value)}/></td><td><textarea className="cell-ta tags-ta" value={c.tags} rows={2} onChange={e=>updateField(c.id,'tags',e.target.value)}/></td><td><button style={{background:'none',border:'none',color:'var(--text-dim)',cursor:'pointer',fontSize:13}} onClick={()=>del(c.id)}>×</button></td></tr>)}
+        </tbody></table></div>}
+
+        {view==='list'&&filteredCards.map(c=><div key={c.id} style={{display:'flex',gap:8,padding:'10px 12px',background:'var(--bg-input)',border:'1px solid var(--border)',borderRadius:6,marginBottom:4,fontSize:12,opacity:c.keep?1:.35}}>
+          <input type="checkbox" checked={c.keep} onChange={()=>toggle(c.id)} style={{accentColor:'var(--accent)',marginTop:2}}/>
+          <TierBadge tier={getTier(c.tags)}/>
+          <div style={{flex:1,minWidth:0}}><div style={{fontFamily:'JetBrains Mono',fontSize:11,lineHeight:1.5,wordBreak:'break-word'}}>{c.text}</div>{c.extra&&<div style={{fontSize:10,color:'var(--text-dim)',marginTop:2}}>Extra: {c.extra}</div>}{c.tags&&<div style={{display:'flex',flexWrap:'wrap',gap:3,marginTop:4}}>{c.tags.split(/\s+/).map((t,j)=><span key={j} style={{fontSize:8,padding:'1px 6px',borderRadius:8,background:'var(--bg-card-alt)',color:'var(--text-dim)',border:'1px solid var(--border)'}}>{t}</span>)}</div>}</div>
+          <button style={{background:'none',border:'none',color:'var(--text-dim)',cursor:'pointer',fontSize:13,flexShrink:0}} onClick={()=>del(c.id)}>×</button>
+        </div>)}
+      </div>}
+
+      {ledger&&<div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginTop:14}}>
+        <div style={{fontSize:10,fontWeight:600,textTransform:'uppercase',letterSpacing:1,color:'var(--text-dim)',marginBottom:8}}>Coverage Ledger</div>
+        <pre style={{fontFamily:'JetBrains Mono',fontSize:10,color:'var(--text-dim)',whiteSpace:'pre-wrap',lineHeight:1.6,maxHeight:220,overflowY:'auto',background:'var(--bg-deep)',padding:10,borderRadius:6,border:'1px solid var(--border)'}}>{ledger}</pre>
+      </div>}
+    </div>
+  );
+}
+
+// ──── TOOL: Deck Merger ────
+const DM_SYSTEM=`You are an expert in Anki flashcard deck creation, cloze deletion formatting, and nursing education \u2014 specifically LPN-to-RN bridge programs and HESI exam preparation.
+
+Key rules you always follow:
+- Preserve original cloze formatting exactly: {{c1::text}}, {{c2::text::hint}}, etc.
+- Preserve all tab-separated fields in Anki export lines \u2014 never reorder, drop, or merge fields.
+- When producing JSON output, return ONLY valid JSON with no markdown fences, no preamble, no trailing text.
+- When tagging for bridge relevance, use hierarchical Anki tags with :: separators (e.g., bridge::lpn_to_rn, hesi::relevant).
+- Prioritize RN-scope content: pathophysiology depth, pharmacology mechanisms, assessment skills, critical thinking, delegation, and prioritization.`;
+
+function dmParseAnkiTxt(rawText){
+  const lines=rawText.split('\n');const cards=[];const metadata=[];
+  for(const line of lines){const t=line.trim();if(!t)continue;if(t.startsWith('#')){metadata.push(t);continue;}
+    const fields=t.split('\t');let tags='';const ti=fields.findIndex(f=>f.trim().toLowerCase().startsWith('tags:'));
+    if(ti>=0){tags=fields[ti].replace(/^tags:\s*/i,'').trim();fields.splice(ti,1);}
+    cards.push({rawLine:t,fields,text:fields[0]||'',tags});}
+  return{cards,metadata};
+}
+
+function dmChunkArray(arr,size){const c=[];for(let i=0;i<arr.length;i+=size)c.push(arr.slice(i,i+size));return c;}
+
+function DeckMerger(){
+  const cfg=useConfig();
+  const [file1,setFile1]=useState(null);
+  const [file2,setFile2]=useState(null);
+  const [text1,setText1]=useState('');
+  const [text2,setText2]=useState('');
+  const [parsed1,setParsed1]=useState(null);
+  const [parsed2,setParsed2]=useState(null);
+  const [batchSize,setBatchSize]=useState(50);
+  const [step,setStep]=useState(0);
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState('');
+  const [analysis,setAnalysis]=useState(null);
+  const [cards,setCards]=useState([]);
+  const [selected,setSelected]=useState(new Set());
+  const [batchProg,setBatchProg]=useState({current:0,total:0});
+  const [searchQ,setSearchQ]=useState('');
+
+  const model=cfg.thinkingMode?cfg.proModel:cfg.flashModel;
+  const thinkLvl=cfg.thinkingMode?cfg.thinkingLevel:null;
+
+  useEffect(()=>{if(file1)file1.text().then(t=>{setText1(t);setParsed1(dmParseAnkiTxt(t));});},[file1]);
+  useEffect(()=>{if(file2)file2.text().then(t=>{setText2(t);setParsed2(dmParseAnkiTxt(t));});},[file2]);
+
+  const filteredCards=useMemo(()=>{if(!searchQ.trim())return cards;const q=searchQ.toLowerCase();return cards.filter(c=>(c.text||'').toLowerCase().includes(q)||(c.tags||'').toLowerCase().includes(q));},[cards,searchQ]);
+
+  async function dmCallGemini(prompt){
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cfg.apiKey}`;
+    const body={system_instruction:{parts:[{text:DM_SYSTEM}]},contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.2,maxOutputTokens:65536}};
+    if(thinkLvl)body.generationConfig.thinkingConfig={thinkingLevel:thinkLvl};
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e?.error?.message||'API '+res.status);}
+    const data=await res.json();return data.candidates?.[0]?.content?.parts?.filter(p=>p.text&&!p.thought).map(p=>p.text).join('\n')||'';
+  }
+
+  async function handleAnalyze(){
+    if(!cfg.apiKey){setError('Enter API key.');return;}if(!text1||!text2){setError('Upload both decks.');return;}
+    setError('');setLoading(true);setStep(1);
+    try{
+      const prompt=`Analyze two Anki decks.\nDeck A (${parsed1?.cards?.length} cards):\n\`\`\`\n${text1.slice(0,8000)}\n\`\`\`\nDeck B (${parsed2?.cards?.length} cards):\n\`\`\`\n${text2.slice(0,8000)}\n\`\`\`\nReturn JSON: {"deck1":{"name":"","totalCards":0,"tags":[],"topicSummary":""},"deck2":{"name":"","totalCards":0,"tags":[],"topicSummary":""},"comparison":{"estimatedDuplicateCards":0,"complementaryStrengths":""},"bridgeRelevance":{"lpnToRnTopics":[],"gapAnalysis":""}}\nReturn ONLY valid JSON.`;
+      const result=await dmCallGemini(prompt);setAnalysis(extractJSON(result));setStep(2);
+    }catch(err){setError('Analysis failed: '+err.message);setStep(0);}finally{setLoading(false);}
+  }
+
+  async function handleMerge(){
+    if(!analysis)return;setLoading(true);setStep(3);
+    try{
+      const allParsed=[...(parsed1?.cards||[]).map(c=>({...c,source:'deck1'})),...(parsed2?.cards||[]).map(c=>({...c,source:'deck2'}))];
+      const batches=dmChunkArray(allParsed,batchSize);let allMerged=[];
+      setBatchProg({current:0,total:batches.length});
+      for(let i=0;i<batches.length;i++){
+        setBatchProg({current:i+1,total:batches.length});
+        const batch=batches[i];const batchText=batch.map((c,idx)=>`[${idx}|${c.source}] ${c.rawLine}`).join('\n');
+        const prompt=`Process this batch for an LPN→RN merged deck.\nBatch (${batch.length} cards):\n${batchText}\n\nFor each card: KEEP if relevant, SKIP if near-duplicate.\nReturn JSON array: [{"rawLine":"exact original","tags":"unified tags","source":"deck1/deck2","category":"label","action":"keep/skip"}]`;
+        const result=await dmCallGemini(prompt);const parsed=extractJSON(result);
+        const kept=(Array.isArray(parsed)?parsed:(parsed.cards||[])).filter(c=>c.action!=='skip');
+        allMerged=[...allMerged,...kept];
+      }
+      const final=allMerged.map((c,i)=>({...c,id:i,text:c.rawLine||c.text||''}));
+      setCards(final);setSelected(new Set(final.map(c=>c.id)));setStep(4);
+    }catch(err){setError('Merge failed: '+err.message);setStep(2);}finally{setLoading(false);setBatchProg({current:0,total:0});}
+  }
+
+  function handleExport(){
+    const sel=cards.filter(c=>selected.has(c.id));if(!sel.length){setError('No cards selected.');return;}
+    const lines=['#separator:tab','#html:true','#notetype:Cloze',''];
+    sel.forEach(card=>{let cl=card.rawLine||card.text||'';const tags=(card.tags||'').trim();if(tags&&!cl.toLowerCase().includes('tags:')){cl+=(cl.includes('\t')?'\t':'\t\t')+'tags: '+tags;}lines.push(cl);});
+    const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='merged_deck.txt';document.body.appendChild(a);a.click();a.remove();
+  }
+
+  const toggleSelect=id=>setSelected(p=>{const n=new Set(p);if(n.has(id))n.delete(id);else n.add(id);return n;});
+
+  function UploadZone({label,file,onFile,cardCount}){
+    const iRef=useRef(null);
+    return <div onClick={()=>iRef.current?.click()} style={{border:`2px dashed ${file?'var(--accent-green)':'var(--border)'}`,borderRadius:'var(--radius-lg)',padding:'24px 16px',textAlign:'center',cursor:'pointer',background:file?'rgba(52,211,153,.04)':'var(--bg-card)',transition:'all .2s',flex:1}}>
+      <input ref={iRef} type="file" accept=".txt" style={{display:'none'}} onChange={e=>{if(e.target.files[0])onFile(e.target.files[0]);}}/>
+      {file?<><div style={{fontSize:11,color:'var(--accent-green)',fontWeight:600}}>✓ Loaded</div><div style={{fontSize:12,fontWeight:500,marginTop:4}}>{file.name}</div><div style={{fontSize:10,color:'var(--text-dim)',marginTop:2}}>{formatSize(file.size)}{cardCount!==undefined?` · ${cardCount} cards`:''}</div></>:<><div style={{fontSize:24,marginBottom:4,opacity:.5}}>📄</div><div style={{fontSize:13,fontWeight:500,color:'var(--text-dim)'}}>{label}</div><div style={{fontSize:10,color:'var(--text-dim)',marginTop:2}}>Drop .txt Anki export</div></>}
+    </div>;
+  }
+
+  return(
+    <div className="tool-panel">
+      <h2 className="tool-title">Anki Deck Merger</h2>
+      <p className="tool-desc">Upload two Anki .txt exports → AI-powered analysis, deduplication, and merged deck</p>
+
+      {/* Progress bar */}
+      <div style={{display:'flex',gap:3,marginBottom:20}}>{['Upload','Analyze','Results','Merge','Export'].map((s,i)=><div key={s} style={{flex:1}}><div style={{height:3,borderRadius:2,background:i<=step?'var(--accent)':'var(--border)',transition:'background .3s'}}/><div style={{fontSize:9,color:i<=step?'var(--accent)':'var(--text-dim)',marginTop:3,textTransform:'uppercase',letterSpacing:'.3px'}}>{s}</div></div>)}</div>
+
+      {error&&<div className="error-banner" style={{marginBottom:14}}><span>⚠</span><div style={{flex:1}}>{error}</div><button onClick={()=>setError('')} style={{background:'none',border:'none',color:'var(--accent-red)',cursor:'pointer',fontSize:14}}>×</button></div>}
+
+      {/* Step 0: Upload */}
+      {step===0&&<>
+        <div style={{display:'flex',gap:12,marginBottom:16}}><UploadZone label="Deck A" file={file1} onFile={setFile1} cardCount={parsed1?.cards?.length}/><UploadZone label="Deck B" file={file2} onFile={setFile2} cardCount={parsed2?.cards?.length}/></div>
+        {parsed1&&parsed2&&<div style={{textAlign:'center'}}><button className="btn-primary" onClick={handleAnalyze}>⚡ Analyze & Compare Decks</button></div>}
+      </>}
+
+      {/* Step 1: Loading */}
+      {step===1&&loading&&<div style={{textAlign:'center',padding:40}}><div className="spinner" style={{width:28,height:28,marginBottom:12}}/><div style={{fontSize:14,fontWeight:500}}>Analyzing decks...</div><div style={{fontSize:11,color:'var(--text-dim)',marginTop:4}}>Using {model}</div></div>}
+
+      {/* Step 2: Analysis results */}
+      {step===2&&analysis&&<>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          {['deck1','deck2'].map((dk,di)=>{const d=analysis[dk];return <div key={dk} style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16}}>
+            <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:8}}><span className={`tier-badge ${di===0?'t3':'t2'}`}>Deck {di===0?'A':'B'}</span><span style={{fontSize:13,fontWeight:600}}>{d?.name||'Deck '+(di+1)}</span></div>
+            <div style={{fontSize:12,color:'var(--text-dim)',marginBottom:10,lineHeight:1.6}}>{d?.topicSummary}</div>
+            <div className="stat-box"><span className="stat-val">{d?.totalCards||'?'}</span><span className="stat-lbl">Cards</span></div>
+          </div>;})}
+        </div>
+        {analysis.comparison&&<div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginBottom:14}}>
+          <h3 style={{fontSize:13,fontWeight:600,color:'var(--text-bright)',marginBottom:10}}>Overlap & Differences</h3>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+            <div className="stat-box"><span className="stat-val" style={{color:'var(--accent-red)'}}>{analysis.comparison.estimatedDuplicateCards||0}</span><span className="stat-lbl">Est. Duplicates</span></div>
+            <div className="stat-box"><span className="stat-val" style={{color:'var(--accent)'}}>{analysis.comparison.sharedTags?.length||0}</span><span className="stat-lbl">Shared Tags</span></div>
+          </div>
+          {analysis.comparison.complementaryStrengths&&<div style={{fontSize:12,color:'var(--text-dim)',lineHeight:1.6,padding:10,background:'var(--bg-card-alt)',borderRadius:6}}>{analysis.comparison.complementaryStrengths}</div>}
+        </div>}
+        {analysis.bridgeRelevance?.gapAnalysis&&<div style={{background:'var(--bg-card)',border:'1px solid var(--accent)',borderLeftWidth:3,borderRadius:'var(--radius-lg)',padding:16,marginBottom:14}}>
+          <h3 style={{fontSize:13,fontWeight:600,color:'var(--accent)',marginBottom:8}}>LPN→RN Bridge Relevance</h3>
+          <div style={{fontSize:12,color:'var(--text)',lineHeight:1.7}}>{analysis.bridgeRelevance.gapAnalysis}</div>
+        </div>}
+        <div style={{textAlign:'center'}}><button className="btn-primary" onClick={handleMerge}>🔀 Build Merged Deck</button></div>
+      </>}
+
+      {/* Step 3: Merging */}
+      {step===3&&loading&&<div style={{textAlign:'center',padding:40}}>
+        <div className="spinner" style={{width:28,height:28,marginBottom:12}}/><div style={{fontSize:14,fontWeight:500}}>Merging cards...</div>
+        {batchProg.total>1&&<div style={{maxWidth:300,margin:'12px auto'}}><div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--text-dim)'}}><span>Batch {batchProg.current}/{batchProg.total}</span><span>{Math.round(batchProg.current/batchProg.total*100)}%</span></div><div className="progress-bar" style={{marginTop:4}}><div className="progress-fill" style={{width:`${batchProg.current/batchProg.total*100}%`}}/></div></div>}
+      </div>}
+
+      {/* Step 4: Review & Export */}
+      {step===4&&<>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <h3 style={{fontSize:15,fontWeight:600,color:'var(--text-bright)'}}>Merged Deck</h3>
+          <span style={{fontSize:12,color:'var(--text-dim)'}}>{selected.size}/{cards.length} selected</span>
+        </div>
+        <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+          <button className="btn-secondary" onClick={()=>{const n=new Set();filteredCards.forEach(c=>n.add(c.id));setSelected(p=>{const s=new Set(p);filteredCards.forEach(c=>s.add(c.id));return s;});}}>Select All</button>
+          <button className="btn-secondary" onClick={()=>setSelected(p=>{const s=new Set(p);filteredCards.forEach(c=>s.delete(c.id));return s;})}>Deselect</button>
+          <div style={{flex:1}}/>
+          <button className="btn-primary" style={{padding:'8px 16px'}} onClick={handleExport}>⬇ Export .txt</button>
+        </div>
+        <div style={{marginBottom:10}}><input type="text" placeholder="Search cards, tags..." value={searchQ} onChange={e=>setSearchQ(e.target.value)}/></div>
+        <div style={{fontSize:11,color:'var(--text-dim)',marginBottom:8}}>Showing {filteredCards.length} of {cards.length}</div>
+        <div style={{maxHeight:500,overflowY:'auto'}}>
+          {filteredCards.map(card=><div key={card.id} style={{display:'flex',gap:8,padding:'8px 10px',background:selected.has(card.id)?'rgba(74,127,247,.04)':'var(--bg-card)',border:`1px solid ${selected.has(card.id)?'var(--accent)':'var(--border)'}`,borderRadius:6,marginBottom:4,fontSize:12}}>
+            <input type="checkbox" checked={selected.has(card.id)} onChange={()=>toggleSelect(card.id)} style={{accentColor:'var(--accent)',marginTop:2}}/>
+            <span style={{fontFamily:'JetBrains Mono',fontSize:10,color:'var(--text-dim)',marginTop:2}}>#{card.id+1}</span>
+            {card.source&&<span className={`tier-badge ${card.source==='deck1'?'t3':'t2'}`} style={{fontSize:8}}>{card.source==='deck1'?'A':'B'}</span>}
+            <div style={{flex:1,minWidth:0,wordBreak:'break-word'}}>{card.text}</div>
+          </div>)}
+        </div>
+        <div style={{textAlign:'center',marginTop:14}}><button className="btn-secondary" onClick={()=>{setStep(0);setAnalysis(null);setCards([]);setSelected(new Set());}}>← Start Over</button></div>
+      </>}
+    </div>
+  );
+}
+
+// ──── TOOL: NCLEX Extractor ────
+const NCLEX_INLINE_PROMPT=`You are an expert nursing educator. From the following text chunk of an NCLEX-style review book, extract EVERY test question.\n\nFor EACH question, return a JSON object with:\n- "question": full question text with all choices\n- "correct_answer": correct answer letter and text\n- "rationale": full rationale\n- "priority_nursing_tip": any tip mentioned (or null)\n- "test_taking_strategy": strategy mentioned (or null)\n- "clinical_judgment_skill": CJ skill identified (or null)\n- "diseases_conditions": array of conditions referenced\n- "keywords": important nursing keywords\n\nThis chunk may overlap with a previous chunk. Do NOT return duplicates.\nReturn ONLY a valid JSON array. No markdown fences. If no questions found, return [].\n\nTEXT CHUNK:\n`;
+
+const NCLEX_SPLIT_PROMPT=`You are an expert nursing educator. Below are NCLEX-style questions that have been PRE-MATCHED with their corresponding answers and rationales. The questions were originally on separate pages from their answers and have been paired by question number.\n\nFor EACH question+answer pair, return a JSON object with:\n- "question_number": original question number\n- "question": full question text with all choices\n- "correct_answer": correct answer letter and text\n- "rationale": full rationale\n- "priority_nursing_tip": any tip mentioned (or null)\n- "test_taking_strategy": strategy mentioned (or null)\n- "clinical_judgment_skill": CJ skill identified (or null)\n- "diseases_conditions": array of conditions referenced\n- "keywords": important nursing keywords\n\nReturn ONLY a valid JSON array. No markdown fences. If no valid pairs found, return [].\n\nPAIRED QUESTIONS AND ANSWERS:\n`;
+
+const NCLEX_AI_PAIR_PROMPT=`You are a text-matching assistant. Below are two sections from a nursing test book:\n1. QUESTIONS section - contains numbered test questions\n2. ANSWERS section - contains numbered answers and rationales\n\nMatch each question number with its answer. Return a JSON array where each object has:\n- "number": question number (integer)\n- "question": full question text with all choices\n- "answer": full answer text with rationale\n\nReturn ONLY a valid JSON array. No markdown.\n\nQUESTIONS SECTION:\n`;
+
+function nclexChunkText(text,size,overlap){
+  const chunks=[];let i=0;
+  while(i<text.length){let end=Math.min(i+size,text.length);if(end<text.length){const nl=text.lastIndexOf('\n',end);if(nl>i+size*0.5)end=nl+1;}chunks.push(text.slice(i,end));i+=Math.max(size-overlap,size*0.3);}
+  return chunks;
+}
+
+function nclexDedup(questions){
+  const seen=new Set();return questions.filter(q=>{if(!q.question)return false;const k=q.question.replace(/\s+/g,' ').trim().slice(0,120).toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
+}
+
+// Split-mode: extract text from specific page ranges
+async function nclexExtractPageRange(file,startPage,endPage){
+  const ab=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+  const s=Math.max(1,startPage),e=Math.min(pdf.numPages,endPage);let text='';
+  for(let i=s;i<=e;i++){
+    const p=await pdf.getPage(i);const c=await p.getTextContent();
+    const items=c.items;let result='';let lastX=-1,lastWidth=0,lastY=-1;
+    for(const item of items){if(!item.str)continue;const x=item.transform?.[4]??0,y=item.transform?.[5]??0,fontSize=item.transform?.[0]??12;
+      if(lastY!==-1&&Math.abs(y-lastY)>fontSize*0.5){result+='\n';lastX=-1;}
+      if(lastX!==-1){const gap=x-(lastX+lastWidth);if(gap>fontSize*0.25)result+=' ';else if(gap<-fontSize*2)result+='\n';}
+      result+=item.str;lastX=x;lastWidth=item.width??(item.str.length*fontSize*0.5);lastY=y;}
+    text+=result+'\n\n';
+  }
+  return text;
+}
+
+// Multi-pattern question number detection
+function nclexSplitByQNum(text){
+  const patterns=[/(?:^|\n)\s*(\d{1,4})\s*\.\s/g,/(?:^|\n)\s*(\d{1,4})\)\s/g,/(?:^|\n)\s*Q(?:uestion)?\s*#?\s*(\d{1,4})[.):;\s]/gi,/(?:^|\n)\s*#\s*(\d{1,4})[.):;\s]/g,/(?:^|\n)\s*\[(\d{1,4})\]/g];
+  let bestItems={},bestCount=0;
+  for(const bp of patterns){
+    const pattern=new RegExp(bp.source,bp.flags);const items={};const positions=[];let m;
+    while((m=pattern.exec(text))!==null){const num=parseInt(m[1]);if(num>0&&num<5000)positions.push({num,index:m.index});}
+    for(let i=0;i<positions.length;i++){const start=positions[i].index;const end=i+1<positions.length?positions[i+1].index:text.length;if(!items[positions[i].num])items[positions[i].num]=text.slice(start,end).trim();}
+    const count=Object.keys(items).length;if(count>bestCount){bestItems=items;bestCount=count;}
+  }
+  // Loose fallback
+  if(bestCount<3){
+    const loose=/(?:^|\n)\s{0,5}(\d{1,4})\s{0,3}[.):]/g;const items={};const positions=[];let m;
+    while((m=loose.exec(text))!==null){const num=parseInt(m[1]);if(num>0&&num<5000)positions.push({num,index:m.index});}
+    for(let i=0;i<positions.length;i++){const start=positions[i].index;const end=i+1<positions.length?positions[i+1].index:text.length;if(!items[positions[i].num])items[positions[i].num]=text.slice(start,end).trim();}
+    if(Object.keys(items).length>bestCount){bestItems=items;bestCount=Object.keys(items).length;}
+  }
+  return bestItems;
+}
+
+function nclexPairQA(qText,aText){
+  const questions=nclexSplitByQNum(qText),answers=nclexSplitByQNum(aText);
+  return Object.keys(questions).map(Number).sort((a,b)=>a-b).map(num=>({number:num,question:questions[num]||'',answer:answers[num]||'',matched:!!answers[num]}));
+}
+
+function nclexBatchPairs(pairs,batchSize=8){const batches=[];for(let i=0;i<pairs.length;i+=batchSize)batches.push(pairs.slice(i,i+batchSize));return batches;}
+function nclexPairsToText(pairs){return pairs.map(p=>{let s=`── Question #${p.number} ──\n${p.question}\n`;if(p.answer)s+=`\n── Answer #${p.number} ──\n${p.answer}\n`;return s;}).join('\n\n');}
+
+// Page range picker sub-component
+function PageRangeSection({label:sLabel,ranges,onChange,maxPages}){
+  const addRange=()=>onChange([...ranges,{start:1,end:maxPages||100}]);
+  const updateRange=(i,field,val)=>{const next=[...ranges];next[i]={...next[i],[field]:parseInt(val)||1};onChange(next);};
+  const removeRange=i=>onChange(ranges.filter((_,j)=>j!==i));
+  return <div>
+    <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}>
+      <span style={{fontSize:11,color:'var(--text-dim)',fontWeight:600}}>{sLabel}</span>
+      <button onClick={addRange} style={{padding:'2px 7px',background:'var(--bg-deep)',border:'1px solid var(--border)',borderRadius:5,color:'var(--accent)',fontSize:10,cursor:'pointer',fontWeight:600}}>+ Range</button>
+    </div>
+    {ranges.map((r,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:5,marginBottom:3}}>
+      <span style={{fontSize:10,color:'var(--text-dim)',width:14}}>{i+1}.</span>
+      <span style={{fontSize:10,color:'var(--text-dim)'}}>Pages</span>
+      <input type="number" min={1} max={maxPages||9999} value={r.start} onChange={e=>updateRange(i,'start',e.target.value)} style={{width:65,textAlign:'center',padding:'5px 6px'}}/>
+      <span style={{fontSize:10,color:'var(--text-dim)'}}>to</span>
+      <input type="number" min={1} max={maxPages||9999} value={r.end} onChange={e=>updateRange(i,'end',e.target.value)} style={{width:65,textAlign:'center',padding:'5px 6px'}}/>
+      {ranges.length>1&&<span onClick={()=>removeRange(i)} style={{color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700}}>×</span>}
+    </div>)}
+  </div>;
+}
+
+function NCLEXQuestionCard({q,index}){
+  const [open,setOpen]=useState(false);
+  return(
+    <div className={`nclex-card ${open?'open':''}`}>
+      <button className="nclex-header" onClick={()=>setOpen(!open)}>
+        <span className="nclex-qnum">Q{index+1}</span>
+        <span style={{color:'var(--text)',fontSize:12,lineHeight:1.5,flex:1}}>{q.question?.slice(0,180)}{q.question?.length>180?'…':''}</span>
+        <span style={{color:'var(--text-dim)',fontSize:14,flexShrink:0,transform:open?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+      </button>
+      {open&&<div className="nclex-body" style={{animation:'fadeUp .15s'}}>
+        <pre style={{whiteSpace:'pre-wrap',fontFamily:'inherit',fontSize:12,color:'var(--text)',lineHeight:1.6,margin:'0 0 10px',padding:10,background:'var(--bg-deep)',borderRadius:6}}>{q.question}</pre>
+        <div style={{background:'rgba(52,211,153,.08)',borderLeft:'3px solid var(--accent-green)',padding:'8px 12px',borderRadius:'0 6px 6px 0',marginBottom:8}}>
+          <span style={{fontWeight:700,color:'var(--accent-green)',fontSize:11}}>✔ CORRECT</span>
+          <div style={{color:'var(--text-dim)',fontSize:12,marginTop:3}}>{q.correct_answer}</div>
+        </div>
+        <div style={{marginBottom:8}}><div style={{fontWeight:600,color:'var(--text-dim)',fontSize:10,textTransform:'uppercase',letterSpacing:.4,marginBottom:3}}>Rationale</div><div style={{color:'var(--text-dim)',fontSize:12,lineHeight:1.6}}>{q.rationale}</div></div>
+        {q.priority_nursing_tip&&<div style={{background:'rgba(240,168,58,.08)',borderLeft:'3px solid var(--accent-warm)',padding:'8px 12px',borderRadius:'0 6px 6px 0',marginBottom:8,fontSize:12}}><strong style={{color:'var(--accent-warm)'}}>⚡ TIP:</strong> <span style={{color:'var(--text-dim)'}}>{q.priority_nursing_tip}</span></div>}
+        {q.test_taking_strategy&&<div style={{background:'rgba(74,127,247,.06)',borderLeft:'3px solid var(--accent)',padding:'8px 12px',borderRadius:'0 6px 6px 0',marginBottom:8,fontSize:12}}><strong style={{color:'var(--accent)'}}>🎯 STRATEGY:</strong> <span style={{color:'var(--text-dim)'}}>{q.test_taking_strategy}</span></div>}
+        {q.clinical_judgment_skill&&<div style={{background:'rgba(167,139,250,.06)',borderLeft:'3px solid var(--accent2)',padding:'8px 12px',borderRadius:'0 6px 6px 0',marginBottom:8,fontSize:12}}><strong style={{color:'var(--accent2)'}}>🧠 CJ:</strong> <span style={{color:'var(--text-dim)'}}>{q.clinical_judgment_skill}</span></div>}
+        <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:6}}>{q.diseases_conditions?.map((d,j)=><span key={j} style={{background:'var(--bg-deep)',color:'var(--text-dim)',fontSize:10,padding:'2px 7px',borderRadius:12,border:'1px solid var(--border)'}}>{d}</span>)}</div>
+      </div>}
+    </div>
+  );
+}
+
+function NCLEXExtractor(){
+  const cfg=useConfig();
+  const [files,setFiles]=useState([]);
+  const [mode,setMode]=useState('inline'); // 'inline' or 'split'
+  const [chunkSize,setChunkSize]=useState(3000);
+  const [overlap,setOverlap]=useState(800);
+  const [pageCount,setPageCount]=useState(null);
+  const [qRanges,setQRanges]=useState([{start:1,end:50}]);
+  const [aRanges,setARanges]=useState([{start:51,end:100}]);
+  const [batchSize,setBatchSize]=useState(8);
+  const [status,setStatus]=useState('idle');
+  const [progress,setProgress]=useState({current:0,total:0});
+  const [questions,setQuestions]=useState([]);
+  const [error,setError]=useState('');
+  const [log,setLog]=useState([]);
+  const [filterStrategy,setFilterStrategy]=useState('');
+  const [filterDisease,setFilterDisease]=useState('');
+  const abortRef=useRef(false);
+  const fRef=useRef(null);
+
+  const model=cfg.thinkingMode?cfg.proModel:cfg.flashModel;
+
+  // Auto-detect page count when files change
+  useEffect(()=>{
+    if(!files.length){setPageCount(null);return;}
+    getPdfPageCount(files[0]).then(n=>{setPageCount(n);const mid=Math.ceil(n/2);setQRanges([{start:1,end:mid}]);setARanges([{start:mid+1,end:n}]);}).catch(()=>setPageCount(null));
+  },[files]);
+
+  const allStrategies=useMemo(()=>[...new Set(questions.map(q=>q.test_taking_strategy).filter(Boolean))].sort(),[questions]);
+  const filtered=useMemo(()=>questions.filter(q=>{
+    if(filterStrategy&&q.test_taking_strategy!==filterStrategy)return false;
+    if(filterDisease){const term=filterDisease.toLowerCase();if(!q.diseases_conditions?.some(d=>d.toLowerCase().includes(term))&&!q.question?.toLowerCase().includes(term))return false;}
+    return true;
+  }),[questions,filterStrategy,filterDisease]);
+
+  const addLog=useCallback(msg=>setLog(p=>[...p,`[${new Date().toLocaleTimeString()}] ${msg}`]),[]);
+
+  // Gemini call for NCLEX (with retry)
+  async function nclexCallGemini(prompt){
+    const gc={temperature:0.1,maxOutputTokens:8192};if(cfg.thinkingMode)gc.thinkingConfig={thinkingLevel:cfg.thinkingLevel};
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cfg.apiKey}`;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:gc})});
+        if((res.status===429||res.status>=500)&&attempt<2){await new Promise(r=>setTimeout(r,Math.pow(2,attempt+1)*1000));continue;}
+        if(!res.ok)throw new Error('API '+res.status);
+        const data=await res.json();const raw=data?.candidates?.[0]?.content?.parts?.filter(p=>p.text).map(p=>p.text).join('')||'[]';
+        const cleaned=raw.replace(/```json\s*/gi,'').replace(/```/g,'').trim();
+        try{return JSON.parse(cleaned);}catch{return[];}
+      }catch(e){if(attempt===2)throw e;await new Promise(r=>setTimeout(r,1000));}
+    }
+  }
+
+  // ── Inline mode runner ──
+  async function runInline(file,existingQ){
+    addLog(`📄 Extracting "${file.name}"...`);
+    const text=await extractPdfTextSpaced(file);addLog(`  ${text.length.toLocaleString()} chars`);
+    const chunks=nclexChunkText(text,chunkSize,overlap);addLog(`  ${chunks.length} chunks (size: ${chunkSize}, overlap: ${overlap})`);
+    setProgress({current:0,total:chunks.length});let allQ=[...existingQ];
+    for(let i=0;i<chunks.length;i++){
+      if(abortRef.current){addLog('⚠ Aborted.');break;}
+      addLog(`  Chunk ${i+1}/${chunks.length}...`);
+      try{
+        const result=await nclexCallGemini(NCLEX_INLINE_PROMPT+chunks[i]);
+        if(Array.isArray(result)&&result.length>0){allQ=nclexDedup([...allQ,...result]);setQuestions([...allQ]);addLog(`    ✓ ${result.length} found → ${allQ.length} unique`);}else addLog(`    — No questions.`);
+      }catch(e){addLog(`    ⚠ ${e.message}`);}
+      setProgress({current:i+1,total:chunks.length});if(i<chunks.length-1)await new Promise(r=>setTimeout(r,500));
+    }
+    return allQ;
+  }
+
+  // ── Split Q&A mode runner ──
+  async function runSplit(file,existingQ){
+    addLog(`📄 Extracting QUESTION pages from "${file.name}"...`);
+    let qText='';for(const r of qRanges){addLog(`  Pages ${r.start}–${r.end}`);qText+=await nclexExtractPageRange(file,r.start,r.end)+'\n\n';}
+    addLog(`  → ${qText.length.toLocaleString()} chars`);
+    addLog(`📄 Extracting ANSWER pages...`);
+    let aText='';for(const r of aRanges){addLog(`  Pages ${r.start}–${r.end}`);aText+=await nclexExtractPageRange(file,r.start,r.end)+'\n\n';}
+    addLog(`  → ${aText.length.toLocaleString()} chars`);
+    addLog(`🔗 Pairing by question number...`);
+    let pairs=nclexPairQA(qText,aText);
+    const matched=pairs.filter(p=>p.matched).length;
+    addLog(`  → Regex found ${pairs.length} questions, ${matched} matched, ${pairs.length-matched} unmatched`);
+    // AI fallback if regex found too few
+    if(pairs.length<3||(pairs.length>0&&matched/pairs.length<0.3)){
+      addLog('🤖 Regex found too few — using AI to pair...');
+      try{
+        const prompt=NCLEX_AI_PAIR_PROMPT+qText.slice(0,12000)+'\n\nANSWERS SECTION:\n'+aText.slice(0,12000);
+        const aiResult=await nclexCallGemini(prompt);
+        if(Array.isArray(aiResult)&&aiResult.length>pairs.length){
+          pairs=aiResult.map(r=>({number:r.number||0,question:r.question||'',answer:r.answer||'',matched:!!r.answer}));
+          addLog(`  → AI paired ${pairs.length} questions (better than regex)`);
+        }
+      }catch(e){addLog(`  ⚠ AI pairing failed: ${e.message}`);}
+    }
+    if(!pairs.length){addLog('⚠ No numbered questions detected. Try adjusting page ranges or Inline mode.');return existingQ;}
+    const batches=nclexBatchPairs(pairs,batchSize);
+    addLog(`Sending ${batches.length} batches of ~${batchSize} to ${model}...`);
+    setProgress({current:0,total:batches.length});let allQ=[...existingQ];
+    for(let i=0;i<batches.length;i++){
+      if(abortRef.current){addLog('⚠ Aborted.');break;}
+      const batch=batches[i];addLog(`  Batch ${i+1}/${batches.length} (Q#${batch[0].number}–#${batch[batch.length-1].number})...`);
+      try{
+        const result=await nclexCallGemini(NCLEX_SPLIT_PROMPT+nclexPairsToText(batch));
+        if(Array.isArray(result)&&result.length>0){allQ=nclexDedup([...allQ,...result]);setQuestions([...allQ]);addLog(`    ✓ ${result.length} → ${allQ.length} unique`);}else addLog(`    — No output.`);
+      }catch(e){addLog(`    ⚠ ${e.message}`);}
+      setProgress({current:i+1,total:batches.length});if(i<batches.length-1)await new Promise(r=>setTimeout(r,500));
+    }
+    return allQ;
+  }
+
+  const run=useCallback(async()=>{
+    if(!cfg.apiKey||!files.length)return;abortRef.current=false;setError('');setQuestions([]);setLog([]);setStatus('processing');
+    try{
+      addLog(`Mode: ${mode==='inline'?'Inline (Q+A together)':'Split Q&A (separated sections)'}${cfg.thinkingMode?` · Thinking: ${cfg.thinkingLevel}`:''}`);
+      addLog(`Processing ${files.length} PDF(s)...`);
+      let allQ=[];
+      for(let fi=0;fi<files.length;fi++){
+        if(abortRef.current)break;
+        addLog(`\n📁 File ${fi+1}/${files.length}: ${files[fi].name}`);
+        if(mode==='inline')allQ=await runInline(files[fi],allQ);
+        else allQ=await runSplit(files[fi],allQ);
+      }
+      addLog(`✅ Done! ${allQ.length} unique questions from ${files.length} file(s).`);setStatus('done');
+    }catch(e){setError(e.message);setStatus('error');addLog(`❌ ${e.message}`);}
+  },[cfg,files,mode,chunkSize,overlap,qRanges,aRanges,batchSize,model,addLog]);
+
+  const exportTxt=()=>{
+    let out='';filtered.forEach((q,i)=>{out+=`${i+1}. ${q.question}\n\nAnswer: ${q.correct_answer}\nRationale: ${q.rationale}\n${q.test_taking_strategy?'Strategy: '+q.test_taking_strategy+'\n':''}${q.diseases_conditions?.length?'Conditions: '+q.diseases_conditions.join(', ')+'\n':''}\n---\n\n`;});
+    downloadBlob(new Blob([out],{type:'text/plain'}),'nclex_questions.txt');
+  };
+
+  const nclexToMd=()=>{
+    let out='# NCLEX Practice Questions\n\n';
+    filtered.forEach((q,i)=>{
+      out+=`**${i+1}.** ${q.question}\n\n`;
+      out+=`**Answer:** ${q.correct_answer}\n\n`;
+      out+=`${q.rationale}\n\n`;
+      if(q.priority_nursing_tip)out+=`> ⚡ **Tip:** ${q.priority_nursing_tip}\n\n`;
+      if(q.test_taking_strategy)out+=`> 🎯 **Strategy:** ${q.test_taking_strategy}\n\n`;
+      if(q.clinical_judgment_skill)out+=`> 🧠 **CJ:** ${q.clinical_judgment_skill}\n\n`;
+      if(q.diseases_conditions?.length)out+=`Conditions: ${q.diseases_conditions.join(', ')}\n\n`;
+      out+=`---\n\n`;
+    });
+    return out;
+  };
+  const exportMd=()=>downloadBlob(new Blob([nclexToMd()],{type:'text/markdown'}),'nclex_questions.md');
+  const copyAll=()=>navigator.clipboard?.writeText(nclexToMd());
+  const exportPdf=()=>exportAsPdf(nclexToMd(),'NCLEX Practice Questions',`${filtered.length} questions`);
+
+  const isProcessing=status==='processing';
+
+  return(
+    <div className="tool-panel">
+      <h2 className="tool-title">NCLEX Question Extractor</h2>
+      <p className="tool-desc">Upload nursing review PDFs → extracted practice questions with rationales, strategies, and disease tagging</p>
+
+      {/* Mode Toggle */}
+      <div style={{display:'flex',gap:0,marginBottom:14,borderRadius:10,overflow:'hidden',border:'1px solid var(--border)'}}>
+        {[{id:'inline',icon:'📄',title:'Inline Mode',desc:'Q & A together on same pages'},{id:'split',icon:'📑',title:'Split Q&A Mode',desc:'Questions & answers on separate pages (Davis-style)'}].map(m=>
+          <button key={m.id} onClick={()=>setMode(m.id)} style={{flex:1,padding:'12px 14px',border:'none',cursor:'pointer',background:mode===m.id?'var(--bg-card)':'var(--bg-input)',borderRight:m.id==='inline'?'1px solid var(--border)':'none',textAlign:'left',transition:'background .15s'}}>
+            <div style={{fontSize:13,fontWeight:600,color:mode===m.id?'var(--text-bright)':'var(--text-dim)'}}>{m.icon} {m.title}</div>
+            <div style={{fontSize:10,color:'var(--text-dim)',marginTop:2}}>{m.desc}</div>
+          </button>
+        )}
+      </div>
+
+      {/* Config */}
+      <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:18,marginBottom:14}}>
+        {/* Inline settings */}
+        {mode==='inline'&&<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+          <div className="sb-field"><label>Chunk Size (chars)</label><input type="number" min={500} max={15000} value={chunkSize} onChange={e=>setChunkSize(Number(e.target.value))}/></div>
+          <div className="sb-field"><label>Overlap (chars)</label><input type="number" min={0} max={5000} value={overlap} onChange={e=>setOverlap(Number(e.target.value))}/><div style={{fontSize:10,color:'var(--text-dim)',marginTop:2}}>~800 = 1-2 pages. Duplicates auto-removed.</div></div>
+        </div>}
+
+        {/* Split settings */}
+        {mode==='split'&&<div style={{marginBottom:12}}>
+          <div style={{background:'var(--bg-input)',border:'1px solid var(--border)',borderRadius:8,padding:12,marginBottom:10}}>
+            <div style={{fontSize:11,color:'var(--accent-warm)',fontWeight:600,marginBottom:6}}>📑 For PDFs like Davis Test Success where questions and answers are in separate sections.</div>
+            <div style={{fontSize:11,color:'var(--text-dim)',lineHeight:1.5,marginBottom:8}}>Specify which pages contain <strong style={{color:'var(--text)'}}>questions</strong> and which contain <strong style={{color:'var(--text)'}}>answers/rationales</strong>. The tool pairs them by question number before sending to Gemini.</div>
+            {pageCount&&<div style={{fontSize:10,color:'var(--accent)',marginBottom:8}}>📖 This PDF has <b>{pageCount}</b> pages</div>}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+              <div style={{padding:8,background:'var(--bg-card)',borderRadius:6,border:'1px solid var(--border)'}}><PageRangeSection label="📝 Question Pages" ranges={qRanges} onChange={setQRanges} maxPages={pageCount}/></div>
+              <div style={{padding:8,background:'var(--bg-card)',borderRadius:6,border:'1px solid var(--border)'}}><PageRangeSection label="✅ Answer Pages" ranges={aRanges} onChange={setARanges} maxPages={pageCount}/></div>
+            </div>
+            <div style={{marginTop:8}}>
+              <div className="sb-field"><label>Questions per batch</label><input type="number" min={2} max={25} value={batchSize} onChange={e=>setBatchSize(Number(e.target.value))} style={{width:90}}/><span style={{fontSize:10,color:'var(--text-dim)',marginLeft:6}}>Lower = more reliable</span></div>
+            </div>
+          </div>
+        </div>}
+
+        {/* Upload */}
+        <div className="upload-zone" onClick={()=>fRef.current?.click()} onDragOver={e=>{e.preventDefault();e.currentTarget.classList.add('dragover');}} onDragLeave={e=>e.currentTarget.classList.remove('dragover')} onDrop={e=>{e.preventDefault();e.currentTarget.classList.remove('dragover');const nf=Array.from(e.dataTransfer.files).filter(f=>f.type==='application/pdf');setFiles(p=>[...p,...nf]);}}>
+          <input ref={fRef} type="file" accept=".pdf" multiple style={{display:'none'}} onChange={e=>{setFiles(p=>[...p,...Array.from(e.target.files)]);e.target.value='';}}/>
+          <div style={{fontSize:28,marginBottom:4,opacity:.6}}>📋</div>
+          <p style={{fontSize:12,color:'var(--text)'}}>Drop PDFs or <strong style={{color:'var(--accent)'}}>click to browse</strong></p>
+        </div>
+        {files.map((f,i)=><div className="file-chip" key={i}><div className="f-icon pdf">PDF</div><span className="f-name">{f.name}</span><span className="f-size">{formatSize(f.size)}</span><button className="f-rm" onClick={()=>setFiles(p=>p.filter((_,j)=>j!==i))}>×</button></div>)}
+        <div style={{display:'flex',gap:8,marginTop:12}}>
+          <button className="btn-primary" onClick={run} disabled={!cfg.apiKey||!files.length||isProcessing}>{isProcessing?'⏳ Processing...':`🚀 Extract from ${files.length||0} PDF${files.length!==1?'s':''}`}</button>
+          {isProcessing&&<button className="btn-danger" onClick={()=>abortRef.current=true}>Abort</button>}
+          {files.length>0&&!isProcessing&&<button className="btn-secondary" onClick={()=>setFiles([])}>Clear</button>}
+        </div>
+      </div>
+
+      {error&&<div className="error-banner"><span>❌</span>{error}</div>}
+
+      {/* Progress */}
+      {(isProcessing||log.length>0)&&<div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginBottom:14}}>
+        {progress.total>0&&<div className="progress-bar" style={{marginBottom:6}}><div className="progress-fill" style={{width:`${(progress.current/progress.total)*100}%`}}/></div>}
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--text-dim)',marginBottom:6}}>
+          <span>{isProcessing?(mode==='split'?`Batch ${progress.current}/${progress.total}`:`Chunk ${progress.current}/${progress.total}`):'Done'}</span>
+          <span style={{color:'var(--accent)'}}>{questions.length} questions</span>
+        </div>
+        <div style={{maxHeight:140,overflowY:'auto',background:'var(--bg-deep)',borderRadius:5,padding:7,fontSize:10,fontFamily:'JetBrains Mono',color:'var(--text-dim)',lineHeight:1.7}}>{log.map((l,i)=><div key={i}>{l}</div>)}</div>
+      </div>}
+
+      {/* Results */}
+      {questions.length>0&&<>
+        <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:16,marginBottom:14}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+            <div className="sb-field"><label>Filter by Strategy</label><select value={filterStrategy} onChange={e=>setFilterStrategy(e.target.value)}><option value="">All ({allStrategies.length})</option>{allStrategies.map(s=><option key={s} value={s}>{s}</option>)}</select></div>
+            <div className="sb-field"><label>Search Disease/Keyword</label><input type="text" placeholder="e.g. Heart Failure" value={filterDisease} onChange={e=>setFilterDisease(e.target.value)}/></div>
+          </div>
+          <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+            <span style={{fontSize:12,color:'var(--text-dim)'}}>Showing <b style={{color:'var(--accent)'}}>{filtered.length}</b> of {questions.length}</span>
+            {(filterStrategy||filterDisease)&&<button className="btn-secondary" style={{padding:'3px 8px',fontSize:10}} onClick={()=>{setFilterStrategy('');setFilterDisease('');}}>Clear filters</button>}
+            <div style={{flex:1}}/>
+            <button className="btn-secondary" onClick={copyAll}>📋 Copy</button>
+            <button className="btn-secondary" onClick={exportMd}>⬇ .md</button>
+            <button className="btn-secondary" onClick={exportTxt}>📝 .txt</button>
+            <button className="btn-secondary" onClick={exportPdf}>⬇ PDF</button>
+          </div>
+        </div>
+        {filtered.map((q,i)=><NCLEXQuestionCard key={i} q={q} index={i}/>)}
+      </>}
+
+      {status==='idle'&&questions.length===0&&<div style={{textAlign:'center',padding:'40px 16px',color:'var(--text-dim)'}}>
+        <div style={{fontSize:40,marginBottom:10}}>📋</div>
+        <div style={{fontSize:14,marginBottom:6}}>Upload NCLEX review PDFs to extract practice questions</div>
+        <div style={{fontSize:11,maxWidth:460,margin:'0 auto',lineHeight:1.6}}>
+          Two modes: <strong style={{color:'var(--text)'}}>Inline</strong> for books where Q&A are on the same pages.
+          <strong style={{color:'var(--text)'}}> Split Q&A</strong> for books like Davis Test Success where questions and answers are in separate sections.
+          Multi-pattern question detection with AI fallback pairing.
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   CONFIG SIDEBAR
+   ═══════════════════════════════════════════════════════ */
+function ConfigSidebar(){
+  const cfg=useConfig();
+  return(
+    <div className="config-sidebar">
+      <div className="sb-header"><h2>Configuration</h2><p>Shared across all tools</p></div>
+      <div className="sb-section">
+        <div className="sb-label">Gemini API Key</div>
+        <div className="sb-field">
+          <input type="password" value={cfg.apiKey} onChange={e=>cfg.setApiKey(e.target.value)} placeholder="AIza..." spellCheck="false"/>
+          <div className="sb-hint">Session-stored. Sent only to Google's API.</div>
+        </div>
+      </div>
+      <div className="sb-section">
+        <div className="sb-label">Model Settings</div>
+        <div className="toggle-row">
+          <span>{cfg.thinkingMode?'\uD83E\uDDE0 Thinking':'⚡ Standard'}</span>
+          <div className={`toggle-switch ${cfg.thinkingMode?'on':''}`} onClick={()=>cfg.setThinkingMode(t=>!t)}/>
+        </div>
+        {cfg.thinkingMode&&(
+          <div style={{marginTop:6}}>
+            <label style={{fontSize:10,color:'var(--text-dim)',display:'block',marginBottom:4,fontWeight:500}}>Thinking Level</label>
+            <div className="level-pills">
+              {['low','medium','high'].map(lv=>(
+                <button key={lv} className={`level-pill ${cfg.thinkingLevel===lv?'on':''}`} onClick={()=>cfg.setThinkingLevel(lv)}>{lv}</button>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="model-badge"><div className={`model-dot ${cfg.thinkingMode?'pro':''}`}/><span style={{flex:1}}>{cfg.thinkingMode?cfg.proModel:cfg.flashModel}</span><span style={{fontSize:9,color:'var(--text-dim)'}}>active</span></div>
+        <div style={{marginTop:10}}>
+          <div className="sb-field"><label>Flash Model</label><input type="text" value={cfg.flashModel} onChange={e=>cfg.setFlashModel(e.target.value)} spellCheck="false"/></div>
+          <div className="sb-field"><label>Pro Model</label><input type="text" value={cfg.proModel} onChange={e=>cfg.setProModel(e.target.value)} spellCheck="false"/></div>
+        </div>
+      </div>
+      <div className="sb-section">
+        <div className="sb-label">Pipeline Info</div>
+        <div className="sb-hint">
+          <strong style={{color:'var(--text)'}}>Extraction</strong> <span style={{color:'var(--accent)'}}>{cfg.flashModel}</span><br/>
+          Fast per-file/chunk data harvest.<br/><br/>
+          <strong style={{color:'var(--text)'}}>Synthesis</strong> <span style={{color:cfg.thinkingMode?'var(--accent-warm)':'var(--accent)'}}>{cfg.thinkingMode?cfg.proModel:cfg.flashModel}{cfg.thinkingMode?` · ${cfg.thinkingLevel}`:''}</span><br/>
+          Final output generation.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   APP SHELL
+   ═══════════════════════════════════════════════════════ */
+function App(){
+  const [apiKey,setApiKey]=useState(()=>{try{return sessionStorage.getItem('suite_key')||'';}catch{return'';}});
+  const [flashModel,setFlashModel]=useState('gemini-3-flash-preview');
+  const [proModel,setProModel]=useState('gemini-3.1-pro-preview');
+  const [thinkingMode,setThinkingMode]=useState(false);
+  const [thinkingLevel,setThinkingLevel]=useState('high');
+  const [activeTool,setActiveTool]=useState('guide');
+  const [showConfig,setShowConfig]=useState(true);
+
+  useEffect(()=>{try{if(apiKey)sessionStorage.setItem('suite_key',apiKey);}catch{}},[apiKey]);
+
+  const cfg={apiKey,setApiKey,flashModel,setFlashModel,proModel,setProModel,thinkingMode,setThinkingMode,thinkingLevel,setThinkingLevel,activeModel:thinkingMode?proModel:flashModel};
+
+  const ToolComponent={guide:StudyGuideGenerator,priority:PriorityAnalyzer,anki:AnkiGenerator,merger:DeckMerger,nclex:NCLEXExtractor}[activeTool]||StudyGuideGenerator;
+
+  return(
+    <ConfigCtx.Provider value={cfg}>
+      <div className="suite-shell">
+        {/* Nav Rail */}
+        <div className="nav-rail">
+          <div className="nav-logo" title="LATTE Study Suite">L</div>
+          {TOOLS.map(t=>(
+            <button key={t.id} className={`nav-btn ${activeTool===t.id?'active':''}`} onClick={()=>setActiveTool(t.id)} title={t.title}>
+              <t.icon/>{t.label}
+            </button>
+          ))}
+          <div className="nav-spacer"/>
+          <button className={`nav-btn nav-btn-cfg ${showConfig?'active':''}`} onClick={()=>setShowConfig(s=>!s)} title="Toggle config sidebar">
+            <NavIcons.gear/>Config
+          </button>
+        </div>
+
+        {/* Config Sidebar */}
+        {showConfig&&<ConfigSidebar/>}
+
+        {/* Main Content */}
+        <div className="main-area">
+          <ToolComponent key={activeTool}/>
+        </div>
+      </div>
+    </ConfigCtx.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
