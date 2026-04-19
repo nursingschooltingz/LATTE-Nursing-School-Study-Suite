@@ -1,0 +1,95 @@
+# Anki Flashcard Tags and LATTE: A Study Method
+
+-----
+
+## How the System Works
+
+The system works as a pipeline where each tool feeds the next, and the LATTE tags are the thread that ties everything together.
+
+-----
+
+## The Framework
+
+LATTE splits every condition into six buckets:
+
+|Bucket         |What It Covers                         |
+|---------------|---------------------------------------|
+|**Brief Patho**|What’s going wrong mechanically        |
+|**Look**       |What you observe                       |
+|**Assess**     |What you as the nurse do to gather data|
+|**Tests**      |Labs / diagnostics                     |
+|**Treatments** |Meds + nursing interventions           |
+|**Educate**    |What you teach the patient             |
+
+The v10c prompt forces every single card into exactly one bucket. This matters because nursing exams don’t test random facts — they test whether you can move through a clinical reasoning chain:
+
+**patho → signs → assessment → diagnosis → intervention → teaching**
+
+-----
+
+## How the Tags Create Structure in Anki
+
+When you import the cards, your Anki browser sidebar shows the tag hierarchy as a filterable tree:
+
+```
+Nursing::LATTE::BriefPatho
+Nursing::LATTE::Look
+Nursing::LATTE::Assess
+Nursing::LATTE::Tests
+Nursing::LATTE::Treatments
+Nursing::LATTE::Educate
+Condition::HeartFailure
+Condition::COPD
+Tier::1
+Tier::2
+Tier::3
+```
+
+You can click any combination to filter. That’s where the strategy comes in.
+
+-----
+
+## The Study Strategy
+
+**Start with the tiers, not the LATTE buckets.** When you have 3 days before an exam, you don’t have time for everything.
+
+- **Filter to `Tier::1` only** and review those until your retention is solid. That’s the 50–60% of cards covering safety-critical content, hallmark signs, priority interventions, major meds. **If you nail Tier 1, you pass.**
+- **Tier 2 gets you a B.**
+- **Tier 3 gets you the A** if time permits.
+
+Once you’re in active review, **use LATTE filtering for weak-spot drilling:**
+
+- Keep missing assessment questions on practice tests? Filter to `Nursing::LATTE::Assess` and hammer those.
+- Pharmacology is your weak point? Filter `Nursing::LATTE::Treatments::Meds`.
+- The tags let you isolate exactly the type of clinical reasoning you’re struggling with rather than reviewing everything blindly.
+
+**The condition tags create a different axis.** Before a cardiac exam, filter `Condition::HeartFailure` and you see every card about HF — patho through education — in one filtered view. That’s your condition-level review. Walk through the LATTE sequence for that one condition: understand the mechanism, know the signs, know what to assess, know the labs, know the meds and interventions, know what to teach. That’s one complete clinical picture.
+
+-----
+
+## How the Full Pipeline Fits Together
+
+|Step|Tool                     |Purpose                                                                                                                                                    |
+|----|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+|1   |**Study Guide Generator**|The comprehensive reference document — your “textbook replacement” organized by LATTE. Read through it to build the big picture and understand connections.|
+|2   |**Priority Analyzer**    |Tells you which parts of that guide are Tier 1 vs Tier 2 vs Tier 3, so you know where to spend your reading time.                                          |
+|3   |**Anki Generator**       |Turns that content into atomic recall cards for spaced repetition.                                                                                         |
+|4   |**NCLEX Extractor**      |Gives you practice questions to test application — can you actually use what you memorized in a clinical scenario?                                         |
+
+The study sequence that gets the most out of all four:
+
+> **Guide first** (read and understand) → **Priority Analyzer** (know what matters most) → **Anki cards** (memorize through spaced repetition) → **NCLEX questions** (test application)
+
+**Don’t skip the reading step** — Anki without understanding is just memorizing words. The cards are designed to be fast because you’re supposed to already understand the concept; the card just keeps it from fading.
+
+-----
+
+## FSRS Tip
+
+Since you’re using optimized FSRS settings for compressed study windows, the tier system pairs well with Anki’s custom study:
+
+1. Create a filtered deck with `tag:Tier::1`
+1. Set a high daily limit for the week before an exam
+1. Let Tier 2 and 3 stay on their normal FSRS schedule
+
+That way your algorithm is spending your review time proportionally to exam importance rather than treating every card equally.
