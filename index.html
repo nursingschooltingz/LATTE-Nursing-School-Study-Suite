@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LATTE Study Suite — AI-Powered Nursing Study Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#06080e;--bg2:#0c0f18;--surface:#121520;--surface2:#1a1e2e;
+  --border:#1e2338;--border2:#2a3050;
+  --text:#b8bdd0;--text-dim:#626a88;--text-bright:#e4e8f4;
+  --accent:#4a7ff7;--accent2:#a78bfa;--accent3:#34d399;--warm:#f0a83a;--red:#f87171;
+}
+html{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{overflow-x:hidden;}
+a{color:var(--accent);text-decoration:none;}a:hover{text-decoration:underline;}
+code{font-family:'Geist Mono',monospace;background:var(--surface2);padding:2px 7px;border-radius:4px;font-size:.85em;color:var(--accent2);}
+::selection{background:var(--accent);color:#fff;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,8,14,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:var(--text-bright);letter-spacing:-.3px;}
+.nav-logo-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:16px;color:#fff;font-style:italic;}
+.nav-links{display:flex;gap:24px;font-size:13px;color:var(--text-dim);}
+.nav-links a{color:var(--text-dim);transition:color .15s;}
+.nav-links a:hover{color:var(--text-bright);text-decoration:none;}
+.nav-cta{padding:7px 18px;background:var(--accent);color:#fff;border-radius:6px;font-size:12px;font-weight:600;letter-spacing:.2px;transition:all .15s;}
+.nav-cta:hover{filter:brightness(1.15);text-decoration:none;transform:translateY(-1px);}
+
+.hero{padding:140px 32px 80px;max-width:900px;margin:0 auto;text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);font-size:11px;color:var(--text-dim);margin-bottom:28px;letter-spacing:.3px;}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent3);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,6vw,64px);font-weight:400;color:var(--text-bright);line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px;}
+.hero h1 em{font-style:italic;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:17px;line-height:1.7;color:var(--text-dim);max-width:620px;margin:0 auto 36px;}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-hero{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;transition:all .2s;border:none;cursor:pointer;}
+.btn-hero.primary{background:var(--accent);color:#fff;box-shadow:0 2px 20px rgba(74,127,247,.25);}
+.btn-hero.primary:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(74,127,247,.35);text-decoration:none;}
+.btn-hero.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.btn-hero.secondary:hover{border-color:var(--text-dim);text-decoration:none;}
+.hero-note{margin-top:24px;font-size:12px;color:var(--text-dim);}
+
+.section{padding:80px 32px;max-width:960px;margin:0 auto;}
+.section-label{font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:12px;}
+.section-title{font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,38px);color:var(--text-bright);letter-spacing:-1px;margin-bottom:12px;line-height:1.2;}
+.section-desc{font-size:15px;color:var(--text-dim);line-height:1.7;max-width:600px;margin-bottom:40px;}
+
+.pipeline-flow{display:flex;align-items:stretch;gap:0;margin-bottom:60px;}
+.pipeline-step{flex:1;padding:24px 20px;background:var(--surface);border:1px solid var(--border);text-align:center;position:relative;}
+.pipeline-step:first-child{border-radius:12px 0 0 12px;}
+.pipeline-step:last-child{border-radius:0 12px 12px 0;}
+.pipeline-step:not(:last-child)::after{content:'\2192';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:16px;z-index:2;background:var(--bg);padding:4px;}
+.pipeline-num{font-family:'Geist Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:6px;letter-spacing:1px;}
+.pipeline-name{font-size:14px;font-weight:600;color:var(--text-bright);margin-bottom:4px;}
+.pipeline-desc{font-size:11px;color:var(--text-dim);line-height:1.5;}
+
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:60px;}
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 24px;transition:all .2s;position:relative;overflow:hidden;}
+.tool-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3);}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;}
+.tool-card:nth-child(1)::before{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.tool-card:nth-child(2)::before{background:linear-gradient(90deg,#ef4444,var(--warm));}
+.tool-card:nth-child(3)::before{background:linear-gradient(90deg,var(--accent2),#ec4899);}
+.tool-card:nth-child(4)::before{background:linear-gradient(90deg,var(--accent3),#06b6d4);}
+.tool-card:nth-child(5)::before{background:linear-gradient(90deg,var(--warm),#ef4444);}
+.tool-icon{font-size:28px;margin-bottom:14px;}
+.tool-name{font-size:16px;font-weight:700;color:var(--text-bright);margin-bottom:6px;letter-spacing:-.2px;}
+.tool-desc{font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-bottom:14px;}
+.tool-features{display:flex;flex-wrap:wrap;gap:5px;}
+.tool-tag{font-family:'Geist Mono',monospace;font-size:9px;padding:3px 9px;border-radius:4px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);letter-spacing:.3px;}
+
+.latte-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:40px;}
+.latte-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 14px;text-align:center;transition:all .2s;}
+.latte-cell:hover{border-color:var(--accent);transform:translateY(-2px);}
+.latte-letter{font-family:'Instrument Serif',serif;font-size:28px;color:var(--accent);margin-bottom:4px;font-style:italic;}
+.latte-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px;}
+.latte-desc{font-size:10px;color:var(--text-dim);line-height:1.5;}
+
+.tier-row{display:flex;gap:12px;margin-bottom:40px;}
+.tier-card{flex:1;padding:20px;border-radius:10px;border:1px solid;}
+.tier-card.t1{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.2);}
+.tier-card.t2{background:rgba(240,168,58,.04);border-color:rgba(240,168,58,.18);}
+.tier-card.t3{background:rgba(74,127,247,.04);border-color:rgba(74,127,247,.15);}
+.tier-card h4{font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.5px;margin-bottom:6px;}
+.tier-card.t1 h4{color:#fca5a5;}.tier-card.t2 h4{color:#fde68a;}.tier-card.t3 h4{color:#93c5fd;}
+.tier-card p{font-size:12px;color:var(--text-dim);line-height:1.6;}
+
+.tag-demo{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:40px;font-family:'Geist Mono',monospace;font-size:12px;line-height:2.2;}
+.tag-demo .tag-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tag{padding:3px 10px;border-radius:5px;font-size:10px;font-weight:500;letter-spacing:.3px;}
+.tag.latte{background:rgba(74,127,247,.1);color:var(--accent);border:1px solid rgba(74,127,247,.2);}
+.tag.condition{background:rgba(167,139,250,.1);color:var(--accent2);border:1px solid rgba(167,139,250,.2);}
+.tag.tier1{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.2);}
+.tag.tier2{background:rgba(240,168,58,.08);color:#fde68a;border:1px solid rgba(240,168,58,.2);}
+.tag-arrow{color:var(--text-dim);font-size:10px;}
+
+.v10c-phases{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:40px;}
+.v10c-phases h3{font-size:14px;font-weight:700;color:var(--text-bright);margin-bottom:14px;letter-spacing:-.2px;}
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;}
+.phase-item{display:flex;align-items:baseline;gap:8px;padding:7px 10px;background:var(--bg2);border-radius:6px;font-size:11px;}
+.phase-num{font-family:'Geist Mono',monospace;font-size:9px;color:var(--accent);font-weight:600;min-width:48px;flex-shrink:0;}
+.phase-label{color:var(--text-dim);}
+
+.steps{display:flex;flex-direction:column;gap:12px;}
+.step{display:flex;gap:16px;align-items:flex-start;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+.step-num{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:13px;font-weight:600;flex-shrink:0;}
+.step-content h4{font-size:14px;font-weight:600;color:var(--text-bright);margin-bottom:4px;}
+.step-content p{font-size:12px;color:var(--text-dim);line-height:1.6;}
+
+.security-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.sec-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;}
+.sec-item .sec-icon{font-size:22px;margin-bottom:8px;}
+.sec-item h5{font-size:12px;font-weight:600;color:var(--text-bright);margin-bottom:4px;}
+.sec-item p{font-size:10px;color:var(--text-dim);line-height:1.5;}
+
+.footer{padding:40px 32px;text-align:center;border-top:1px solid var(--border);margin-top:60px;}
+.footer p{font-size:12px;color:var(--text-dim);}
+
+@media(max-width:768px){
+  .nav{padding:10px 16px;}.nav-links{display:none;}
+  .hero{padding:100px 16px 60px;}
+  .pipeline-flow{flex-direction:column;}
+  .pipeline-step:first-child,.pipeline-step:last-child{border-radius:8px;}
+  .pipeline-step:not(:last-child)::after{content:'\2193';right:auto;left:50%;bottom:-10px;top:auto;transform:translateX(-50%);}
+  .latte-grid{grid-template-columns:repeat(3,1fr);}
+  .tier-row{flex-direction:column;}
+  .security-grid{grid-template-columns:1fr;}
+  .tools-grid{grid-template-columns:1fr;}
+  .phase-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo"><div class="nav-logo-icon">L</div>LATTE Study Suite</div>
+  <div class="nav-links">
+    <a href="#tools">Tools</a>
+    <a href="#framework">Framework</a>
+    <a href="#v10c">v10c Prompt</a>
+    <a href="#quickstart">Quick Start</a>
+  </div>
+  <a href="#quickstart" class="nav-cta">Get Started</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge"><span class="dot"></span> Single-file &middot; Serverless &middot; Client-side</div>
+  <h1>Your entire nursing toolkit<br>in <em>one HTML file</em></h1>
+  <p>Five AI-powered study tools built around the LATTE clinical framework. Upload your course files, generate study guides, flashcards, practice questions, and priority analysis &mdash; all powered by the Gemini API, all running in your browser.</p>
+  <div class="hero-actions">
+    <a href="LATTE-Study-Suite.html" class="btn-hero primary" download>&#8595; Download Study Suite</a>
+    <a href="#tools" class="btn-hero secondary">See What's Inside</a>
+  </div>
+  <p class="hero-note">No install &middot; No server &middot; No account &middot; Just open and go</p>
+</section>
+
+<section class="section" id="pipeline">
+  <div class="section-label">Study Pipeline</div>
+  <div class="section-title">Four steps from lecture slides to exam-ready recall</div>
+  <div class="section-desc">Each tool feeds the next. The LATTE tags are the thread that ties everything together.</div>
+  <div class="pipeline-flow">
+    <div class="pipeline-step"><div class="pipeline-num">01</div><div class="pipeline-name">Read</div><div class="pipeline-desc">Study Guide Generator builds the big picture from your source files</div></div>
+    <div class="pipeline-step"><div class="pipeline-num">02</div><div class="pipeline-name">Triage</div><div class="pipeline-desc">Priority Analyzer sorts content into Tier&nbsp;1/2/3 by exam importance</div></div>
+    <div class="pipeline-step"><div class="pipeline-num">03</div><div class="pipeline-name">Memorize</div><div class="pipeline-desc">Anki Generator creates atomic cloze cards for spaced repetition</div></div>
+    <div class="pipeline-step"><div class="pipeline-num">04</div><div class="pipeline-name">Apply</div><div class="pipeline-desc">NCLEX Extractor tests whether you can use it in clinical scenarios</div></div>
+  </div>
+</section>
+
+<section class="section" id="tools">
+  <div class="section-label">Tools</div>
+  <div class="section-title">Five tools, one shared API key</div>
+  <div class="section-desc">Each tool is purpose-built for a different stage of the study process.</div>
+  <div class="tools-grid">
+    <div class="tool-card">
+      <div class="tool-icon">&#128214;</div>
+      <div class="tool-name">Study Guide Generator</div>
+      <div class="tool-desc">Upload lecture PPTs and textbook PDFs. Get a comprehensive LATTE study guide with supplemental tables A&ndash;J, source-cited values, and a completeness self-audit.</div>
+      <div class="tool-features">
+        <span class="tool-tag">Two-phase pipeline</span>
+        <span class="tool-tag">Overlap context</span>
+        <span class="tool-tag">File API (2GB)</span>
+        <span class="tool-tag">PDF / .md / .txt</span>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">&#9651;</div>
+      <div class="tool-name">Priority Analyzer</div>
+      <div class="tool-desc">Feed in your study guide. Get content triaged into Tier 1 (must know), Tier 2 (should know), Tier 3 (good to know) using Elsevier's pedagogy hierarchy.</div>
+      <div class="tool-features">
+        <span class="tool-tag">Chunked + streaming</span>
+        <span class="tool-tag">Context carry-forward</span>
+        <span class="tool-tag">Color-coded tiers</span>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">&#128421;</div>
+      <div class="tool-name">Anki Generator</div>
+      <div class="tool-desc">PDFs become Anki-ready cloze cards via the v10c master prompt &mdash; 19 processing phases, LATTE tagging, tier system, and a coverage ledger audit trail.</div>
+      <div class="tool-features">
+        <span class="tool-tag">v10c (17K+ chars)</span>
+        <span class="tool-tag">19 phases</span>
+        <span class="tool-tag">Focus context fields</span>
+        <span class="tool-tag">Tier filtering</span>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">&#128256;</div>
+      <div class="tool-name">Deck Merger</div>
+      <div class="tool-desc">Upload two Anki .txt exports. AI compares, deduplicates, and merges them with bridge relevance scoring for LPN-to-RN / HESI prep.</div>
+      <div class="tool-features">
+        <span class="tool-tag">Batched merge</span>
+        <span class="tool-tag">Gap analysis</span>
+        <span class="tool-tag">Inline editing</span>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">&#9989;</div>
+      <div class="tool-name">NCLEX Extractor</div>
+      <div class="tool-desc">Extract practice questions from review PDFs. Inline mode for standard books, Split Q&amp;A mode for Davis-style separated sections with AI fallback pairing.</div>
+      <div class="tool-features">
+        <span class="tool-tag">Inline + Split modes</span>
+        <span class="tool-tag">AI question pairing</span>
+        <span class="tool-tag">Strategy filters</span>
+        <span class="tool-tag">Disease tagging</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="framework">
+  <div class="section-label">Framework</div>
+  <div class="section-title">The LATTE clinical framework</div>
+  <div class="section-desc">Every condition decomposed into six buckets that mirror the nursing process. Every Anki card tagged into exactly one.</div>
+  <div class="latte-grid">
+    <div class="latte-cell"><div class="latte-letter">L</div><div class="latte-label">Brief Patho</div><div class="latte-desc">What's going wrong mechanically</div></div>
+    <div class="latte-cell"><div class="latte-letter">L</div><div class="latte-label">Look</div><div class="latte-desc">Signs, symptoms, hallmark findings</div></div>
+    <div class="latte-cell"><div class="latte-letter">A</div><div class="latte-label">Assess</div><div class="latte-desc">What the nurse does to gather data</div></div>
+    <div class="latte-cell"><div class="latte-letter">T</div><div class="latte-label">Tests</div><div class="latte-desc">Labs, diagnostics, values, ranges</div></div>
+    <div class="latte-cell"><div class="latte-letter">T</div><div class="latte-label">Treatments</div><div class="latte-desc">Meds, interventions, hold/notify</div></div>
+    <div class="latte-cell"><div class="latte-letter">E</div><div class="latte-label">Educate</div><div class="latte-desc">Patient teaching, discharge, red flags</div></div>
+  </div>
+
+  <div class="section-label" style="margin-top:40px;">Tag System</div>
+  <div class="section-title" style="font-size:24px;">Three axes of filtering in Anki</div>
+  <div class="section-desc">Every card gets tagged on three independent axes. Click any combination in Anki's browser to filter.</div>
+  <div class="tag-demo">
+    <div class="tag-line"><span class="tag-arrow">WHAT &#8594;</span><span class="tag latte">Nursing::LATTE::Treatments::Meds</span><span style="color:var(--text-dim);font-size:10px;">type of clinical knowledge</span></div>
+    <div class="tag-line"><span class="tag-arrow">WHICH &#8594;</span><span class="tag condition">Condition::HeartFailure</span><span style="color:var(--text-dim);font-size:10px;">which condition or topic</span></div>
+    <div class="tag-line"><span class="tag-arrow">HOW IMPORTANT &#8594;</span><span class="tag tier1">Tier::1</span><span class="tag tier2">Tier::2</span><span style="color:var(--text-dim);font-size:10px;">exam priority level</span></div>
+  </div>
+
+  <div class="tier-row">
+    <div class="tier-card t1"><h4>TIER 1 &mdash; Must Know</h4><p>50-60% of cards. Safety-critical content, hallmark signs, priority interventions, major meds, hold/notify thresholds. Nail Tier 1 = pass the exam.</p></div>
+    <div class="tier-card t2"><h4>TIER 2 &mdash; Should Know</h4><p>25-35% of cards. Supporting pathophysiology, secondary signs, additional monitoring, less common drug effects. Tier 1 + 2 = the B.</p></div>
+    <div class="tier-card t3"><h4>TIER 3 &mdash; Good to Know</h4><p>10-15% of cards. Deep mechanism details, rare exceptions, edge cases. If time permits after mastering T1 and T2.</p></div>
+  </div>
+</section>
+
+<section class="section" id="v10c">
+  <div class="section-label">Anki Engine</div>
+  <div class="section-title">The v10c Master Prompt</div>
+  <div class="section-desc">17,000+ characters of precisely engineered processing instructions. 19 phases from input handling to final audit.</div>
+  <div class="v10c-phases">
+    <h3>Processing Phases</h3>
+    <div class="phase-grid">
+      <div class="phase-item"><span class="phase-num">Phase 0</span><span class="phase-label">Input handling &amp; cleanup</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 1</span><span class="phase-label">LATTE bucket assignment</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 1.25</span><span class="phase-label">Fast-review compression</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 1.5</span><span class="phase-label">Atomicity rules</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 1.75</span><span class="phase-label">List handling</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 1.9</span><span class="phase-label">Anti-redundancy</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 2</span><span class="phase-label">Substantive threshold</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 3</span><span class="phase-label">Exhaustive extraction</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 3.5</span><span class="phase-label">Extra field rules</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 3.75</span><span class="phase-label">Grounding tiers</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 4</span><span class="phase-label">Zero-skip audit</span></div>
+      <div class="phase-item"><span class="phase-num">Phase 5</span><span class="phase-label">Pre-output audit</span></div>
+      <div class="phase-item"><span class="phase-num">Final Gate</span><span class="phase-label">Coverage ledger verification</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="quickstart">
+  <div class="section-label">Quick Start</div>
+  <div class="section-title">Up and running in 60 seconds</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Download the HTML file</h4><p>One file. No install, no build step, no dependencies. Open it in any modern browser.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Enter your Gemini API key</h4><p>Get one free at <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>. Stored in your browser session only &mdash; cleared when you close the tab.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Upload your course files</h4><p>PDFs, PowerPoints, images. Files up to 2GB supported via the Google File API. Everything is processed in your browser.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Generate and export</h4><p>Study guides, priority analysis, Anki cards, or practice questions. Export as .md, .txt, PDF, or Anki import file.</p></div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">Security</div>
+  <div class="security-grid">
+    <div class="sec-item"><div class="sec-icon">&#128274;</div><h5>Session-Only Key Storage</h5><p>API key stored in sessionStorage. Cleared automatically when you close the tab.</p></div>
+    <div class="sec-item"><div class="sec-icon">&#127760;</div><h5>Direct to Google</h5><p>Your key is sent only to generativelanguage.googleapis.com via HTTPS. No middleman.</p></div>
+    <div class="sec-item"><div class="sec-icon">&#128187;</div><h5>Client-Side Processing</h5><p>All file processing happens in your browser. Files never leave your machine except for API calls.</p></div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>LATTE Study Suite &middot; Built for nursing students &middot; Single-file serverless architecture &middot; Powered by the Gemini API</p>
+</footer>
+
+</body>
+</html>
