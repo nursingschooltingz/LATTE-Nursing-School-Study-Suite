@@ -7,7 +7,7 @@
 Five AI-powered tools in one HTML file.
 No server. No install. No account. Just open and go.
 
-[**↓ Download Study Suite**]([LATTE-Study-Suite.html](https://github.com/nursingschooltingz/LATTE-Nursing-School-Study-Suite/releases/tag/Primary) · [Get a Gemini API Key](https://aistudio.google.com/apikey)
+[**↓ Download Study Suite**](https://github.com/nursingschooltingz/LATTE-Nursing-School-Study-Suite/releases/tag/Primary) · [Get a Gemini API Key](https://aistudio.google.com/apikey)
 
 -----
 
