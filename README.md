@@ -67,6 +67,8 @@ Upload a study guide → content triaged into Tier 1/2/3 using Elsevier’s text
 
 #### [Click Here to Learn How to Utilize This Study Method Effectively](https://github.com/nursingschooltingz/LATTE-Nursing-School-Study-Suite/blob/main/README.md#how-to-study-using-the-generated-anki-flashcards)
 
+#### [Copy-Paste The Prompt Used, Into Any AI](https://github.com/nursingschooltingz/LATTE-Nursing-School-Study-Suite/blob/main/LATTE-Anki-Prompt-v10c.pdf)
+
 Upload PDFs → Anki-ready cloze flashcards with LATTE tagging, 3-tier priority system, and a coverage ledger audit trail.
 
 **Powered by the v10c Master Prompt** — 17,000+ characters, 19 processing phases:
