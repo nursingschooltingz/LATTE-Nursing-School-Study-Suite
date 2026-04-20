@@ -353,3 +353,25 @@ Since you’re using optimized FSRS settings for compressed study windows, the t
 1. Let Tier 2 and 3 stay on their normal FSRS schedule
 
 That way your algorithm is spending your review time proportionally to exam importance rather than treating every card equally.
+
+## Disclaimer
+
+This project is an independent, personal study tool and is not affiliated with, endorsed by, 
+or sponsored by Straight A Nursing, Anki, Google, Elsevier, or any nursing program or 
+educational institution.
+
+The LATTE framework (Look, Assess, Tests, Treatments, Educate) is a study method created 
+by Straight A Nursing (straightanursing.com). This tool references the framework as an 
+organizational strategy for personal study purposes only. All credit for the LATTE method 
+belongs to Straight A Nursing.
+
+Anki is a free and open-source flashcard program. This tool generates import-compatible files 
+but is not part of the Anki project.
+
+This tool uses the Google Gemini API. Users must provide their own API key and comply with 
+Google's terms of service.
+
+This project is provided as-is for personal educational use. It is not intended for commercial 
+use, redistribution, or as a substitute for professional nursing education, clinical judgment, 
+or medical advice. AI-generated content should always be verified against authoritative 
+clinical sources.
