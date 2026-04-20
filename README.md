@@ -65,7 +65,7 @@ Upload a study guide → content triaged into Tier 1/2/3 using Elsevier’s text
 
 ### 🖥 LATTE Anki Generator
 
-#### [Click Here to Learn How to Use This Effectively]([https://aistudio.google.com/apikey](https://github.com/nursingschooltingz/LATTE-Nursing-School-Study-Suite/blob/main/README.md#how-to-study-using-the-generated-anki-flashcards)
+#### [Click Here to Learn How to Utilize This Study Method Effectively](https://github.com/nursingschooltingz/LATTE-Nursing-School-Study-Suite/blob/main/README.md#how-to-study-using-the-generated-anki-flashcards)
 
 Upload PDFs → Anki-ready cloze flashcards with LATTE tagging, 3-tier priority system, and a coverage ledger audit trail.
 
