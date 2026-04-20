@@ -65,6 +65,8 @@ Upload a study guide → content triaged into Tier 1/2/3 using Elsevier’s text
 
 ### 🖥 LATTE Anki Generator
 
+#### [Click here to read a how-to on the LATTE format w Anki flashcards](https://github.com/nursingschooltingz/LATTE-Nursing-School-Study-Suite/edit/main/README.md#anki-flashcard-tags-and-latte-a-study-method)
+
 Upload PDFs → Anki-ready cloze flashcards with LATTE tagging, 3-tier priority system, and a coverage ledger audit trail.
 
 **Powered by the v10c Master Prompt** — 17,000+ characters, 19 processing phases:
@@ -253,6 +255,8 @@ When non-nursing content is detected, the tag hierarchy auto-adapts:
 - A modern web browser
 - A [Google Gemini API key](https://aistudio.google.com/apikey) (free tier available)
 - PDF, PPTX, or image files to process
+
+# HOW TO STUDY USING THE GENERATED ANKI FLASHCARDS
 
 # Anki Flashcard Tags and LATTE: A Study Method
 
